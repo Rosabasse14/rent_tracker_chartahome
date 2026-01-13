@@ -1,9 +1,10 @@
+
 import { useState } from "react";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { Button } from "@/components/ui/button";
-import { units as initialUnits, properties } from "@/data/mockData";
 import { Unit } from "@/types";
 import { Plus, Home, Building2, DollarSign, User, Trash2 } from "lucide-react";
+import { useData } from "@/context/DataContext";
 import {
   Dialog,
   DialogContent,
@@ -22,12 +23,13 @@ import {
 } from "@/components/ui/select";
 
 export default function Units() {
-  const [units, setUnits] = useState<Unit[]>(initialUnits);
+  const { units, properties, addUnit, deleteUnit } = useData();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [newUnit, setNewUnit] = useState({
     name: "",
     propertyId: "",
     monthlyRent: "",
+    type: "Studio",
   });
 
   const handleAddUnit = () => {
@@ -39,16 +41,13 @@ export default function Units() {
         propertyId: newUnit.propertyId,
         propertyName: property?.name || "",
         monthlyRent: parseFloat(newUnit.monthlyRent),
-        status: "available",
+        type: newUnit.type,
+        status: "vacant",
       };
-      setUnits([...units, unit]);
-      setNewUnit({ name: "", propertyId: "", monthlyRent: "" });
+      addUnit(unit);
+      setNewUnit({ name: "", propertyId: "", monthlyRent: "", type: "Studio" });
       setIsDialogOpen(false);
     }
-  };
-
-  const handleDeleteUnit = (id: string) => {
-    setUnits(units.filter((u) => u.id !== id));
   };
 
   return (
@@ -98,14 +97,30 @@ export default function Units() {
                 </Select>
               </div>
               <div>
-                <Label htmlFor="rent">Monthly Rent ($)</Label>
+                <Label htmlFor="rent">Monthly Rent (FCFA)</Label>
                 <Input
                   id="rent"
                   type="number"
                   value={newUnit.monthlyRent}
                   onChange={(e) => setNewUnit({ ...newUnit, monthlyRent: e.target.value })}
-                  placeholder="e.g., 1500"
+                  placeholder="e.g., 150000"
                 />
+              </div>
+              <div>
+                <Label htmlFor="unitType">Unit Type</Label>
+                <Select
+                  value={newUnit.type}
+                  onValueChange={(value) => setNewUnit({ ...newUnit, type: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select unit type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Room">Room</SelectItem>
+                    <SelectItem value="Studio">Studio</SelectItem>
+                    <SelectItem value="Apartment">Apartment</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <Button onClick={handleAddUnit} className="w-full">
                 Add Unit
@@ -123,8 +138,9 @@ export default function Units() {
                 <Home className="w-5 h-5 text-primary" />
               </div>
               <button
-                onClick={() => handleDeleteUnit(unit.id)}
+                onClick={() => deleteUnit(unit.id)}
                 className="text-muted-foreground hover:text-destructive transition-colors"
+                aria-label="Delete unit"
               >
                 <Trash2 className="w-4 h-4" />
               </button>
@@ -134,11 +150,11 @@ export default function Units() {
               <Building2 className="w-4 h-4" />
               <span>{unit.propertyName}</span>
             </div>
-            <div className="flex items-center gap-2 text-sm text-primary mb-3">
+            <div className="flex items-center gap-2 text-primary mb-3">
               <DollarSign className="w-4 h-4" />
-              <span>Monthly Rent</span>
+              <span>Monthly Rent (FCFA) • <span className="font-bold uppercase tracking-tighter text-[10px]">{unit.type}</span></span>
             </div>
-            <p className="text-2xl font-bold mb-3">${unit.monthlyRent.toLocaleString()}</p>
+            <p className="text-2xl font-bold mb-3">{unit.monthlyRent.toLocaleString()}</p>
             <div className="flex items-center gap-2 text-sm">
               <User className="w-4 h-4 text-muted-foreground" />
               {unit.status === "occupied" ? (
@@ -147,7 +163,7 @@ export default function Units() {
                   <p className="text-muted-foreground">{unit.tenantName}</p>
                 </div>
               ) : (
-                <span className="text-muted-foreground">Available</span>
+                <span className="text-muted-foreground">Vacant</span>
               )}
             </div>
           </div>

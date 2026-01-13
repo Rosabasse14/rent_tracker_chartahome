@@ -1,9 +1,10 @@
+
 import { useState } from "react";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { Button } from "@/components/ui/button";
-import { properties as initialProperties } from "@/data/mockData";
 import { Property } from "@/types";
 import { Plus, Building2, MapPin, Trash2 } from "lucide-react";
+import { useData } from "@/context/DataContext";
 import {
   Dialog,
   DialogContent,
@@ -13,28 +14,33 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function Properties() {
-  const [properties, setProperties] = useState<Property[]>(initialProperties);
+  const { properties, addProperty, deleteProperty } = useData();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [newProperty, setNewProperty] = useState({ name: "", address: "" });
+  const [newProperty, setNewProperty] = useState({ name: "", address: "", type: "Apartment Block" });
 
   const handleAddProperty = () => {
-    if (newProperty.name && newProperty.address) {
+    if (newProperty.name && newProperty.address && newProperty.type) {
       const property: Property = {
         id: Date.now().toString(),
         name: newProperty.name,
         address: newProperty.address,
         units: 0,
+        type: newProperty.type,
+        managerId: "1", // Mock manager ID
       };
-      setProperties([...properties, property]);
-      setNewProperty({ name: "", address: "" });
+      addProperty(property);
+      setNewProperty({ name: "", address: "", type: "Apartment Block" });
       setIsDialogOpen(false);
     }
-  };
-
-  const handleDeleteProperty = (id: string) => {
-    setProperties(properties.filter((p) => p.id !== id));
   };
 
   return (
@@ -62,17 +68,34 @@ export default function Properties() {
                   id="name"
                   value={newProperty.name}
                   onChange={(e) => setNewProperty({ ...newProperty, name: e.target.value })}
-                  placeholder="e.g., Sunset Apartments"
+                  placeholder="e.g., Sunset Villa"
                 />
               </div>
               <div>
-                <Label htmlFor="address">Address</Label>
+                <Label htmlFor="address">Location (City / Quarter)</Label>
                 <Input
                   id="address"
                   value={newProperty.address}
                   onChange={(e) => setNewProperty({ ...newProperty, address: e.target.value })}
-                  placeholder="e.g., 123 Main St, City, State 12345"
+                  placeholder="e.g., Makepe, Douala"
                 />
+              </div>
+              <div>
+                <Label htmlFor="type">Property Type</Label>
+                <Select
+                  value={newProperty.type}
+                  onValueChange={(value) => setNewProperty({ ...newProperty, type: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Apartment Block">Apartment Block</SelectItem>
+                    <SelectItem value="Compound">Compound</SelectItem>
+                    <SelectItem value="Studio Complex">Studio Complex</SelectItem>
+                    <SelectItem value="Townhouse">Townhouse</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <Button onClick={handleAddProperty} className="w-full">
                 Add Property
@@ -89,12 +112,18 @@ export default function Properties() {
               <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
                 <Building2 className="w-5 h-5 text-primary" />
               </div>
-              <button
-                onClick={() => handleDeleteProperty(property.id)}
-                className="text-muted-foreground hover:text-destructive transition-colors"
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
+              <div className="flex gap-2">
+                <span className="text-[10px] bg-muted px-2 py-0.5 rounded-full font-bold uppercase tracking-wider text-muted-foreground border border-border">
+                  {property.type}
+                </span>
+                <button
+                  onClick={() => deleteProperty(property.id)}
+                  className="text-muted-foreground hover:text-destructive transition-colors"
+                  aria-label="Delete property"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
             </div>
             <h3 className="font-semibold text-lg mb-2">{property.name}</h3>
             <div className="flex items-start gap-2 text-sm text-muted-foreground mb-4">

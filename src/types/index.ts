@@ -3,6 +3,8 @@ export interface Property {
   name: string;
   address: string;
   units: number;
+  type: string; // e.g. Compound, Block, Studio
+  managerId: string;
 }
 
 export interface Unit {
@@ -11,7 +13,8 @@ export interface Unit {
   propertyId: string;
   propertyName: string;
   monthlyRent: number;
-  status: 'available' | 'occupied';
+  type: string; // e.g. Room, Studio, Apartment
+  status: 'vacant' | 'occupied';
   tenantName?: string;
 }
 
@@ -20,10 +23,13 @@ export interface Tenant {
   name: string;
   email: string;
   phone?: string;
+  nationalId?: string;
   unitId: string;
   unitName: string;
   propertyName: string;
   status: 'active' | 'inactive';
+  entryDate: string; // ISO Date required
+  rentDueDay: number; // e.g. 5
 }
 
 export interface RentLedgerEntry {
@@ -35,7 +41,7 @@ export interface RentLedgerEntry {
   paid: number;
   balance: number;
   dueDate: string;
-  status: 'paid' | 'partial' | 'overdue' | 'pending';
+  status: 'paid' | 'partial' | 'overdue' | 'pending' | 'rejected';
 }
 
 export interface PaymentSubmission {
@@ -54,8 +60,10 @@ export interface PaymentProof {
   unitName: string;
   amount: number;
   period: string;
+  paymentMethod?: 'MTN MoMo' | 'Orange Money' | 'Bank Transfer' | 'Cash';
   notes?: string;
-  status: 'paid' | 'partial' | 'pending';
+  fileUrl?: string; // URL for screenshot
+  status: 'paid' | 'partial' | 'pending' | 'rejected';
 }
 
 export interface OverduePayment {
@@ -64,4 +72,22 @@ export interface OverduePayment {
   unitName: string;
   amount: number;
   daysOverdue: number;
+}
+
+export interface Manager {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  city: string;
+  status: 'active' | 'inactive';
+}
+
+export interface Manager {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  city: string;
+  status: 'active' | 'inactive';
 }

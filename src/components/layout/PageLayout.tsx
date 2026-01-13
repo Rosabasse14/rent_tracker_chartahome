@@ -1,17 +1,15 @@
+
 import { ReactNode } from "react";
-import { AppSidebar } from "./AppSidebar";
 
 interface PageLayoutProps {
   children: ReactNode;
+  className?: string; // Add className prop for flexibility
 }
 
-export function PageLayout({ children }: PageLayoutProps) {
+export function PageLayout({ children, className = "" }: PageLayoutProps) {
   return (
-    <div className="flex min-h-screen w-full">
-      <AppSidebar />
-      <main className="flex-1 p-8 overflow-auto">
-        {children}
-      </main>
+    <div className={`container mx-auto p-6 md:p-8 animate-in fade-in slide-in-from-bottom-4 duration-500 ${className}`}>
+      {children}
     </div>
   );
 }
