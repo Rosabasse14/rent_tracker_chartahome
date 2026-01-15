@@ -34,6 +34,13 @@ export default function Units() {
     propertyId: "",
     monthlyRent: "",
     type: "Studio",
+    bedrooms: "",
+    bathrooms: "",
+    sizeSqm: "",
+    floorNumber: "",
+    depositAmount: "",
+    maintenanceFee: "",
+    description: "",
   });
 
   const handleAddUnit = () => {
@@ -47,9 +54,28 @@ export default function Units() {
         monthlyRent: parseFloat(newUnit.monthlyRent),
         type: newUnit.type,
         status: "vacant",
+        bedrooms: parseInt(newUnit.bedrooms) || 0,
+        bathrooms: parseFloat(newUnit.bathrooms) || 0,
+        sizeSqm: parseFloat(newUnit.sizeSqm) || 0,
+        floorNumber: parseInt(newUnit.floorNumber) || 0,
+        depositAmount: parseFloat(newUnit.depositAmount) || 0,
+        maintenanceFee: parseFloat(newUnit.maintenanceFee) || 0,
+        description: newUnit.description,
       };
       addUnit(unit);
-      setNewUnit({ name: "", propertyId: "", monthlyRent: "", type: "Studio" });
+      setNewUnit({
+        name: "",
+        propertyId: "",
+        monthlyRent: "",
+        type: "Studio",
+        bedrooms: "",
+        bathrooms: "",
+        sizeSqm: "",
+        floorNumber: "",
+        depositAmount: "",
+        maintenanceFee: "",
+        description: "",
+      });
       setIsDialogOpen(false);
     }
   };
@@ -125,6 +151,82 @@ export default function Units() {
                     <SelectItem value="Apartment">{t.type_apartment_room}</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="bedrooms">{t.unit_bedrooms}</Label>
+                  <Input
+                    id="bedrooms"
+                    type="number"
+                    value={newUnit.bedrooms}
+                    onChange={(e) => setNewUnit({ ...newUnit, bedrooms: e.target.value })}
+                    placeholder="e.g. 2"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="bathrooms">{t.unit_bathrooms}</Label>
+                  <Input
+                    id="bathrooms"
+                    type="number"
+                    step="0.5"
+                    value={newUnit.bathrooms}
+                    onChange={(e) => setNewUnit({ ...newUnit, bathrooms: e.target.value })}
+                    placeholder="e.g. 1.5"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="size">{t.unit_size}</Label>
+                  <Input
+                    id="size"
+                    type="number"
+                    value={newUnit.sizeSqm}
+                    onChange={(e) => setNewUnit({ ...newUnit, sizeSqm: e.target.value })}
+                    placeholder="e.g. 85"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="floor">{t.unit_floor}</Label>
+                  <Input
+                    id="floor"
+                    type="number"
+                    value={newUnit.floorNumber}
+                    onChange={(e) => setNewUnit({ ...newUnit, floorNumber: e.target.value })}
+                    placeholder="e.g. 2"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="deposit">{t.unit_deposit}</Label>
+                  <Input
+                    id="deposit"
+                    type="number"
+                    value={newUnit.depositAmount}
+                    onChange={(e) => setNewUnit({ ...newUnit, depositAmount: e.target.value })}
+                    placeholder="e.g. 300000"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="maintenance">{t.unit_maintenance}</Label>
+                  <Input
+                    id="maintenance"
+                    type="number"
+                    value={newUnit.maintenanceFee}
+                    onChange={(e) => setNewUnit({ ...newUnit, maintenanceFee: e.target.value })}
+                    placeholder="e.g. 10000"
+                  />
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="unit_description">{t.unit_description}</Label>
+                <Input
+                  id="unit_description"
+                  value={newUnit.description}
+                  onChange={(e) => setNewUnit({ ...newUnit, description: e.target.value })}
+                  placeholder="e.g. Master bedroom with balcony"
+                />
               </div>
               <Button onClick={handleAddUnit} className="w-full">
                 {t.add_unit}

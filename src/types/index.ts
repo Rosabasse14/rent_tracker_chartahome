@@ -42,6 +42,7 @@ export interface Tenant {
   propertyName: string;
   status: 'active' | 'inactive';
   entryDate: string; // ISO Date required
+  leaseEnd?: string; // ISO Date required
   rentDueDay: number; // e.g. 5
 }
 

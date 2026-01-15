@@ -46,6 +46,7 @@ export default function Tenants() {
     unitId: "",
     nationalId: "",
     entryDate: "",
+    leaseEnd: "",
     rentDueDay: "5",
   });
 
@@ -74,12 +75,13 @@ export default function Tenants() {
       propertyName: unit?.propertyName || "",
       status: "active",
       entryDate: newTenant.entryDate,
+      leaseEnd: newTenant.leaseEnd || undefined,
       rentDueDay: parseInt(newTenant.rentDueDay),
     };
 
     const success = await addTenant(tenant);
     if (success) {
-      setNewTenant({ name: "", email: "", phone: "", unitId: "", nationalId: "", entryDate: "", rentDueDay: "5" });
+      setNewTenant({ name: "", email: "", phone: "", unitId: "", nationalId: "", entryDate: "", leaseEnd: "", rentDueDay: "5" });
       setIsDialogOpen(false);
       toast.success(t.tenant_onboarded_success);
     }
@@ -102,6 +104,8 @@ export default function Tenants() {
       unitName: unit?.name || "",
       propertyName: unit?.propertyName || "",
       entryDate: editingTenant.entryDate,
+      leaseEnd: editingTenant.leaseEnd,
+      status: editingTenant.status,
       rentDueDay: editingTenant.rentDueDay,
     };
 
@@ -201,6 +205,17 @@ export default function Tenants() {
                     className="rounded-xl"
                   />
                 </div>
+              </div>
+
+              <div>
+                <Label htmlFor="leaseEnd">{t.lease_end}</Label>
+                <Input
+                  id="leaseEnd"
+                  type="date"
+                  value={newTenant.leaseEnd}
+                  onChange={(e) => setNewTenant({ ...newTenant, leaseEnd: e.target.value })}
+                  className="rounded-xl"
+                />
               </div>
 
               <div>
@@ -425,6 +440,34 @@ export default function Tenants() {
                 </div>
               </div>
 
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="edit-leaseEnd">{t.lease_end}</Label>
+                  <Input
+                    id="edit-leaseEnd"
+                    type="date"
+                    value={editingTenant.leaseEnd || ""}
+                    onChange={(e) => setEditingTenant({ ...editingTenant, leaseEnd: e.target.value })}
+                    className="rounded-xl"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="edit-status">{t.status}</Label>
+                  <Select
+                    value={editingTenant.status}
+                    onValueChange={(value: 'active' | 'inactive') => setEditingTenant({ ...editingTenant, status: value })}
+                  >
+                    <SelectTrigger className="rounded-xl">
+                      <SelectValue placeholder={t.status} />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-xl">
+                      <SelectItem value="active">{t.active}</SelectItem>
+                      <SelectItem value="inactive">{t.inactive}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
               <div>
                 <Label htmlFor="edit-unit">{t.assign_unit}</Label>
                 <Select
@@ -456,7 +499,7 @@ export default function Tenants() {
             </div>
           )}
         </DialogContent>
-      </Dialog>
-    </PageLayout>
+      </Dialog >
+    </PageLayout >
   );
 }

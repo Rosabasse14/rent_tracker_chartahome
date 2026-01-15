@@ -25,11 +25,21 @@ import {
 } from "@/components/ui/select";
 
 export default function Properties() {
-  const { language } = useAuth();
+  const { language, user } = useAuth();
   const t = translations[language];
   const { properties, addProperty, deleteProperty } = useData();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [newProperty, setNewProperty] = useState({ name: "", address: "", type: "Apartment Block" });
+  const [newProperty, setNewProperty] = useState({
+    name: "",
+    address: "",
+    type: "Apartment Block",
+    city: "",
+    state: "",
+    zipCode: "",
+    description: "",
+    imageUrl: "",
+    amenities: ""
+  });
 
   const handleAddProperty = () => {
     if (newProperty.name && newProperty.address && newProperty.type) {
@@ -39,10 +49,26 @@ export default function Properties() {
         address: newProperty.address,
         units: 0,
         type: newProperty.type,
-        managerId: "1", // Mock manager ID
+        managerId: user?.id || "",
+        city: newProperty.city,
+        state: newProperty.state,
+        zipCode: newProperty.zipCode,
+        description: newProperty.description,
+        imageUrl: newProperty.imageUrl,
+        amenities: newProperty.amenities.split(',').map(s => s.trim()).filter(Boolean),
       };
       addProperty(property);
-      setNewProperty({ name: "", address: "", type: "Apartment Block" });
+      setNewProperty({
+        name: "",
+        address: "",
+        type: "Apartment Block",
+        city: "",
+        state: "",
+        zipCode: "",
+        description: "",
+        imageUrl: "",
+        amenities: ""
+      });
       setIsDialogOpen(false);
     }
   };
@@ -101,13 +127,71 @@ export default function Properties() {
                   </SelectContent>
                 </Select>
               </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="city">{t.property_city}</Label>
+                  <Input
+                    id="city"
+                    value={newProperty.city}
+                    onChange={(e) => setNewProperty({ ...newProperty, city: e.target.value })}
+                    placeholder="e.g. Douala"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="state">{t.property_state}</Label>
+                  <Input
+                    id="state"
+                    value={newProperty.state}
+                    onChange={(e) => setNewProperty({ ...newProperty, state: e.target.value })}
+                    placeholder="e.g. Littoral"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="zipCode">{t.property_zip}</Label>
+                  <Input
+                    id="zipCode"
+                    value={newProperty.zipCode}
+                    onChange={(e) => setNewProperty({ ...newProperty, zipCode: e.target.value })}
+                    placeholder="e.g. 0000"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="imageUrl">{t.property_image_url}</Label>
+                  <Input
+                    id="imageUrl"
+                    value={newProperty.imageUrl}
+                    onChange={(e) => setNewProperty({ ...newProperty, imageUrl: e.target.value })}
+                    placeholder="https://..."
+                  />
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="description">{t.property_description}</Label>
+                <Input
+                  id="description"
+                  value={newProperty.description}
+                  onChange={(e) => setNewProperty({ ...newProperty, description: e.target.value })}
+                  placeholder="e.g. Luxury villa with pool"
+                />
+              </div>
+              <div>
+                <Label htmlFor="amenities">{t.property_amenities}</Label>
+                <Input
+                  id="amenities"
+                  value={newProperty.amenities}
+                  onChange={(e) => setNewProperty({ ...newProperty, amenities: e.target.value })}
+                  placeholder="Pool, Gym, Security"
+                />
+              </div>
               <Button onClick={handleAddProperty} className="w-full">
                 {t.add_property}
               </Button>
             </div>
-          </DialogContent>
-        </Dialog>
-      </div>
+          </DialogContent >
+        </Dialog >
+      </div >
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {properties.map((property) => (
@@ -145,6 +229,6 @@ export default function Properties() {
           </div>
         ))}
       </div>
-    </PageLayout>
+    </PageLayout >
   );
 }

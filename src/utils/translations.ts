@@ -167,6 +167,12 @@ export const translations = {
         type_compound: "Compound",
         type_studio: "Studio Complex",
         type_townhouse: "Townhouse",
+        property_city: "City",
+        property_state: "State / Region",
+        property_zip: "Zip Code",
+        property_description: "Description",
+        property_image_url: "Image URL",
+        property_amenities: "Amenities (comma separated)",
 
         // Tenants Page
         tenants_title: "Tenants",
@@ -193,6 +199,8 @@ export const translations = {
         onboard_tenant_btn: "Onboard Tenant",
         entry: "Entry",
         due_day: "Term",
+        lease_end: "Lease End Date",
+        is_active_label: "Active Status",
 
         // Managers Page
         platform_managers: "Platform Managers",
@@ -247,6 +255,13 @@ export const translations = {
         type_room: "Room",
         type_studio_room: "Studio",
         type_apartment_room: "Apartment",
+        unit_bedrooms: "Bedrooms",
+        unit_bathrooms: "Bathrooms",
+        unit_size: "Size (sqm)",
+        unit_floor: "Floor Number",
+        unit_deposit: "Deposit Amount",
+        unit_maintenance: "Maintenance Fee",
+        unit_description: "Description",
 
         // Notifications
         notifications_title: "Notifications",
@@ -466,6 +481,12 @@ export const translations = {
         type_compound: "Concession",
         type_studio: "Complexe de studios",
         type_townhouse: "Maison de ville",
+        property_city: "Ville",
+        property_state: "État / Région",
+        property_zip: "Code Postal",
+        property_description: "Description",
+        property_image_url: "URL de l'image",
+        property_amenities: "Commodités (séparées par des virgules)",
 
         // Tenants Page
         tenants_title: "Locataires",
@@ -492,6 +513,8 @@ export const translations = {
         onboard_tenant_btn: "Intégrer Locataire",
         entry: "Entrée",
         due_day: "Terme",
+        lease_end: "Date de fin de bail",
+        is_active_label: "Statut Actif",
 
         // Managers Page
         platform_managers: "Gestionnaires de la Plateforme",
@@ -546,6 +569,13 @@ export const translations = {
         type_room: "Chambre",
         type_studio_room: "Studio",
         type_apartment_room: "Appartement",
+        unit_bedrooms: "Chambres",
+        unit_bathrooms: "Salles de bain",
+        unit_size: "Surface (m²)",
+        unit_floor: "Numéro d'étage",
+        unit_deposit: "Montant du dépôt",
+        unit_maintenance: "Frais d'entretien",
+        unit_description: "Description",
 
         // Notifications
         notifications_title: "Notifications",
