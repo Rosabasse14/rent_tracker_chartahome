@@ -293,6 +293,10 @@ export const translations = {
         from_last_month: "from last month",
         system_economy: "SYSTEM ECONOMY",
         remain_unpaid_msg: "remain unpaid for the current period",
+        edit_manager: "Edit Manager",
+        edit_tenant: "Edit Tenant",
+        confirm_delete_manager: "Are you sure you want to delete this manager?",
+        confirm_delete_tenant: "Are you sure you want to delete this tenant?",
     },
     fr: {
         // Roles
@@ -588,6 +592,10 @@ export const translations = {
         from_last_month: "par rapport au mois dernier",
         system_economy: "ÉCONOMIE DU SYSTÈME",
         remain_unpaid_msg: "restent impayés pour la période actuelle",
+        edit_manager: "Modifier le Gestionnaire",
+        edit_tenant: "Modifier le Locataire",
+        confirm_delete_manager: "Voulez-vous vraiment supprimer ce gestionnaire ?",
+        confirm_delete_tenant: "Voulez-vous vraiment supprimer ce locataire ?",
     }
 };
 

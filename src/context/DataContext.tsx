@@ -18,6 +18,9 @@ interface DataContextType {
     addTenant: (tenant: Tenant) => Promise<boolean>;
     deleteTenant: (id: string) => void;
     addManager: (manager: Manager) => Promise<boolean>;
+    deleteManager: (id: string) => Promise<void>;
+    updateManager: (id: string, updates: Partial<Manager>) => Promise<void>;
+    updateTenant: (id: string, updates: Partial<Tenant>) => Promise<void>;
     vacateUnit: (tenantId: string) => void;
     addPaymentProof: (proof: PaymentProof) => void;
     verifyPayment: (paymentId: string, status: 'paid' | 'rejected') => void;
@@ -187,6 +190,47 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
         return true;
     };
 
+    const deleteManager = async (id: string) => {
+        const { error } = await supabase.from('managers').delete().eq('id', id);
+        if (error) {
+            console.error("Error deleting manager:", error);
+            toast.error("Failed to delete manager");
+        } else {
+            toast.success("Manager removed successfully");
+            fetchData();
+        }
+    };
+
+    const updateManager = async (id: string, updates: Partial<Manager>) => {
+        const { error } = await supabase.from('managers').update(updates).eq('id', id);
+        if (error) {
+            console.error("Error updating manager:", error);
+            toast.error("Failed to update manager");
+        } else {
+            toast.success("Manager details updated");
+            fetchData();
+        }
+    };
+
+    const updateTenant = async (id: string, updates: Partial<Tenant>) => {
+        // Map updates to DB columns if necessary
+        const dbUpdates: any = {};
+        if (updates.name) dbUpdates.name = updates.name;
+        if (updates.email) dbUpdates.email = updates.email;
+        if (updates.phone) dbUpdates.phone = updates.phone;
+        if (updates.unitId !== undefined) dbUpdates.unit_id = updates.unitId;
+        if (updates.status) dbUpdates.is_active = updates.status === 'active';
+
+        const { error } = await supabase.from('tenants').update(dbUpdates).eq('id', id);
+        if (error) {
+            console.error("Error updating tenant:", error);
+            toast.error("Failed to update tenant");
+        } else {
+            toast.success("Tenant details updated");
+            fetchData();
+        }
+    };
+
     const vacateUnit = async (tenantId: string) => {
         const tenant = tenants.find(t => t.id === tenantId);
         if (!tenant) return;
@@ -257,6 +301,9 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
             addTenant,
             deleteTenant,
             addManager,
+            deleteManager,
+            updateManager,
+            updateTenant,
             vacateUnit,
             addPaymentProof,
             verifyPayment,

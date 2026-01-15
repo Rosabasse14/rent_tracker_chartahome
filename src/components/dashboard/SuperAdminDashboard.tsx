@@ -1,6 +1,5 @@
 import { PageLayout } from "@/components/layout/PageLayout";
 import { StatCard } from "@/components/dashboard/StatCard";
-import { NotificationCenter } from "@/components/common/NotificationCenter";
 import { useData } from "@/context/DataContext";
 import {
     Shield,
@@ -50,7 +49,7 @@ export function SuperAdminDashboard() {
                     <p className="text-muted-foreground font-medium mt-1">{t.real_time_oversight}</p>
                 </div>
                 <div className="flex items-center gap-3">
-                    <Link to="/audit" className="flex items-center gap-2 px-6 py-3 bg-white border border-border shadow-sm rounded-2xl font-bold hover:shadow-md transition-all text-sm">
+                    <Link to="/super-admin/audit" className="flex items-center gap-2 px-6 py-3 bg-white border border-border shadow-sm rounded-2xl font-bold hover:shadow-md transition-all text-sm">
                         <Search className="w-4 h-4 text-primary" />
                         {t.audit_hub}
                     </Link>
@@ -58,7 +57,6 @@ export function SuperAdminDashboard() {
                         <UserPlus className="w-4 h-4" />
                         {t.onboard_manager}
                     </Link>
-                    <NotificationCenter />
                 </div>
             </div>
 
@@ -147,7 +145,7 @@ export function SuperAdminDashboard() {
                                     <p className="text-xs text-amber-700 font-medium">12 {t.units} {t.remain_unpaid_msg}.</p>
                                 </div>
                             </div>
-                            <Link to="/audit" className="px-5 py-2.5 bg-white border border-amber-200 text-amber-700 font-bold rounded-xl text-xs hover:bg-amber-100 transition-colors whitespace-nowrap">
+                            <Link to="/super-admin/audit" className="px-5 py-2.5 bg-white border border-amber-200 text-amber-700 font-bold rounded-xl text-xs hover:bg-amber-100 transition-colors whitespace-nowrap">
                                 {t.view_unpaid}
                             </Link>
                         </div>

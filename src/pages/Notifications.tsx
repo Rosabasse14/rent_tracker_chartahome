@@ -4,59 +4,8 @@ import { Bell, AlertCircle, CheckCircle2, Clock, FileText, Info } from "lucide-r
 import { useAuth } from "@/context/AuthContext";
 import { translations } from "@/utils/translations";
 
-const managerNotifications = [
-  {
-    id: "1",
-    type: "submission",
-    title: { en: "New Payment Proof Submitted", fr: "Nouvelle Preuve de Paiement Soumise" },
-    message: { en: "Robert Wilson submitted a payment proof for Suite 1A. Review now.", fr: "Robert Wilson a soumis une preuve de paiement pour la Suite 1A. Examinez-la maintenant." },
-    time: { en: "10 minutes ago", fr: "il y a 10 minutes" },
-    unread: true,
-  },
-  {
-    id: "2",
-    type: "overdue",
-    title: { en: "Overdue Alert", fr: "Alerte de Retard" },
-    message: { en: "Emily Rodriguez overdue for 11 days. System generated reminder sent.", fr: "Emily Rodriguez a 11 jours de retard. Rappel généré par le système envoyé." },
-    time: { en: "2 hours ago", fr: "il y a 2 heures" },
-    unread: true,
-  },
-  {
-    id: "3",
-    type: "partial",
-    title: { en: "Partial Payment Recorded", fr: "Paiement Partiel Enregistré" },
-    message: { en: "Sarah Chen paid 80,000 FCFA (Partial). Balance: 70,000 FCFA.", fr: "Sarah Chen a payé 80 000 FCFA (Partiel). Solde : 70 000 FCFA." },
-    time: { en: "1 day ago", fr: "il y a 1 jour" },
-    unread: false,
-  },
-];
-
-const tenantNotifications = [
-  {
-    id: "1",
-    type: "payment_success",
-    title: { en: "Payment Confirmed", fr: "Paiement Confirmé" },
-    message: { en: "Your payment of 150,000 FCFA for January 2026 has been approved.", fr: "Votre paiement de 150 000 FCFA pour Janvier 2026 a été approuvé." },
-    time: { en: "1 day ago", fr: "il y a 1 jour" },
-    unread: true,
-  },
-  {
-    id: "2",
-    type: "reminder",
-    title: { en: "Rent Due Soon", fr: "Loyer Bientôt Dû" },
-    message: { en: "Reminder: Rent for February is due on Feb 5th.", fr: "Rappel : Le loyer de Février est dû le 5 Février." },
-    time: { en: "3 days ago", fr: "il y a 3 jours" },
-    unread: false,
-  },
-  {
-    id: "3",
-    type: "info",
-    title: { en: "Maintenance Notice", fr: "Avis de Maintenance" },
-    message: { en: "Building water maintenance scheduled for Saturday, 10 AM.", fr: "Maintenance de l'eau du bâtiment prévue pour Samedi, 10h." },
-    time: { en: "5 days ago", fr: "il y a 5 jours" },
-    unread: false,
-  },
-];
+const managerNotifications = [];
+const tenantNotifications = [];
 
 export default function Notifications() {
   const { user, language } = useAuth();

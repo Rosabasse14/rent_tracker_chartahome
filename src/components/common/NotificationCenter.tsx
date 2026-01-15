@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Bell, Check, Trash2, X } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
@@ -29,6 +30,9 @@ export function NotificationCenter() {
     const [unreadCount, setUnreadCount] = useState(0);
     const [isOpen, setIsOpen] = useState(false);
 
+    // Allowed types per user request (payments, overdue/reminders)
+    const allowedTypes = ['payment', 'reminder', 'alert'];
+
     useEffect(() => {
         if (!user) return;
 
@@ -38,6 +42,7 @@ export function NotificationCenter() {
                 .from('notifications')
                 .select('*')
                 .eq('user_id', user.id)
+                .in('type', allowedTypes) // Filter only relevant ones
                 .order('created_at', { ascending: false })
                 .limit(20);
 
@@ -62,9 +67,13 @@ export function NotificationCenter() {
                 },
                 (payload) => {
                     const newNotif = payload.new as Notification;
-                    setNotifications(prev => [newNotif, ...prev]);
-                    setUnreadCount(prev => prev + 1);
-                    toast.info(newNotif.title, { description: newNotif.message });
+
+                    // Only process if type is allowed
+                    if (allowedTypes.includes(newNotif.type)) {
+                        setNotifications(prev => [newNotif, ...prev]);
+                        setUnreadCount(prev => prev + 1);
+                        toast.info(newNotif.title, { description: newNotif.message });
+                    }
                 }
             )
             .subscribe();

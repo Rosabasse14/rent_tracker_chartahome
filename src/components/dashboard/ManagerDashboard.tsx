@@ -2,7 +2,6 @@
 import { PageLayout } from "@/components/layout/PageLayout";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { StatusBadge } from "@/components/ui/StatusBadge";
-import { NotificationCenter } from "@/components/common/NotificationCenter";
 import { useData } from "@/context/DataContext";
 import {
     DollarSign,
@@ -59,11 +58,10 @@ export function ManagerDashboard() {
                     <p className="text-muted-foreground mt-1">{t.operational_backbone}</p>
                 </div>
                 <div className="flex items-center gap-4">
-                    <div className="hidden md:flex flex-col items-end">
+                    <div className="flex flex-col items-end">
                         <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest leading-none mb-1">{t.current_period}</span>
                         <span className="text-sm font-bold bg-primary/10 text-primary px-3 py-1 rounded-lg border border-primary/20">{periodString}</span>
                     </div>
-                    <NotificationCenter />
                 </div>
             </div>
 
