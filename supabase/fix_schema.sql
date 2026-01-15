@@ -67,7 +67,18 @@ BEGIN
   END IF;
 END $$;
 
--- 4. FIX MANAGERS TABLE
+-- 4. FIX PAYMENTS TABLE
+DO $$ 
+BEGIN 
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='payments' AND column_name='verified_by') THEN
+    ALTER TABLE public.payments ADD COLUMN verified_by uuid REFERENCES public.profiles(id);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='payments' AND column_name='verified_at') THEN
+    ALTER TABLE public.payments ADD COLUMN verified_at timestamp with time zone;
+  END IF;
+END $$;
+
+-- 5. FIX MANAGERS TABLE
 DO $$ 
 BEGIN 
   IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='managers' AND column_name='phone') THEN

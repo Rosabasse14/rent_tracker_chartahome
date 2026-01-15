@@ -208,7 +208,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
         const dbProperty = {
             name: property.name,
             address: property.address,
-            manager_id: property.managerId,
+            manager_id: (property.managerId === "" || property.managerId === "00000000-0000-0000-0000-000000000000") ? null : property.managerId,
             description: property.description,
             city: property.city,
             state: property.state,
@@ -230,7 +230,9 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
         const dbUpdates: any = {};
         if (updates.name) dbUpdates.name = updates.name;
         if (updates.address) dbUpdates.address = updates.address;
-        if (updates.managerId) dbUpdates.manager_id = updates.managerId;
+        if (updates.managerId) {
+            dbUpdates.manager_id = (updates.managerId === "" || updates.managerId === "00000000-0000-0000-0000-000000000000") ? null : updates.managerId;
+        }
         if (updates.city) dbUpdates.city = updates.city;
         if (updates.state) dbUpdates.state = updates.state;
         if (updates.zipCode) dbUpdates.zip_code = updates.zipCode;
@@ -405,7 +407,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
                         payment_method: proof.paymentMethod,
                         notes: proof.notes,
                         proof_url: proof.fileUrl,
-                        tenant_id: user?.id,
+                        tenant_id: (user?.id === "00000000-0000-0000-0000-000000000000") ? null : user?.id,
                         unit_id: unitId || null,
                         submitted_at: proof.submittedAt
                     }]);
@@ -415,7 +417,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
                 verifyPayment: async (id, status) => {
                     const { error } = await supabase.from("payments").update({
                         status,
-                        verified_by: user?.id,
+                        verified_by: (user?.id === "00000000-0000-0000-0000-000000000000") ? null : user?.id,
                         verified_at: new Date().toISOString()
                     }).eq("id", id);
                     if (error) toast.error(error.message);
