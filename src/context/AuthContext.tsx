@@ -34,7 +34,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const login = async (email: string) => {
     // 1. Special case for SuperAdmin
     if (email.toLowerCase() === 'rdtb1418@gmail.com') {
-      const superAdmin: User = { id: 'sa', name: 'Master Admin', role: 'SUPER_ADMIN', email };
+      const superAdmin: User = {
+        id: '00000000-0000-0000-0000-000000000000',
+        name: 'Master Admin',
+        role: 'SUPER_ADMIN',
+        email
+      };
       setUser(superAdmin);
       localStorage.setItem("auth_email", email);
       return true;

@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { Bell, Check, Trash2, X } from 'lucide-react';
+import { Bell, Check, Trash2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/context/AuthContext';
 import { translations } from "@/utils/translations";
@@ -19,7 +19,7 @@ interface Notification {
     title: string;
     message: string;
     type: 'reminder' | 'alert' | 'info' | 'payment';
-    is_read: boolean;
+    unread: boolean;
     created_at: string;
 }
 
@@ -42,13 +42,13 @@ export function NotificationCenter() {
                 .from('notifications')
                 .select('*')
                 .eq('user_id', user.id)
-                .in('type', allowedTypes) // Filter only relevant ones
+                .in('type', allowedTypes)
                 .order('created_at', { ascending: false })
                 .limit(20);
 
             if (data) {
                 setNotifications(data as Notification[]);
-                setUnreadCount(data.filter((n: Notification) => !n.is_read).length);
+                setUnreadCount(data.filter((n: Notification) => n.unread).length);
             }
         };
 
@@ -56,7 +56,7 @@ export function NotificationCenter() {
 
         // 2. Realtime Subscription
         const channel = supabase
-            .channel('notifications-channel')
+            .channel('notifications-realtime')
             .on(
                 'postgres_changes',
                 {
@@ -68,10 +68,9 @@ export function NotificationCenter() {
                 (payload) => {
                     const newNotif = payload.new as Notification;
 
-                    // Only process if type is allowed
                     if (allowedTypes.includes(newNotif.type)) {
                         setNotifications(prev => [newNotif, ...prev]);
-                        setUnreadCount(prev => prev + 1);
+                        if (newNotif.unread) setUnreadCount(prev => prev + 1);
                         toast.info(newNotif.title, { description: newNotif.message });
                     }
                 }
@@ -84,30 +83,28 @@ export function NotificationCenter() {
     }, [user, language]);
 
     const markAsRead = async (id: string) => {
-        // Optimistic update
-        setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: true } : n));
+        setNotifications(prev => prev.map(n => n.id === id ? { ...n, unread: false } : n));
         setUnreadCount(prev => Math.max(0, prev - 1));
 
-        await supabase.from('notifications').update({ is_read: true }).eq('id', id);
+        await supabase.from('notifications').update({ unread: false }).eq('id', id);
     };
 
     const deleteNotification = async (id: string) => {
+        const wasUnread = notifications.find(n => n.id === id)?.unread;
         setNotifications(prev => prev.filter(n => n.id !== id));
-        // If it was unread, decrease count
-        const wasUnread = notifications.find(n => n.id === id)?.is_read === false;
         if (wasUnread) setUnreadCount(prev => Math.max(0, prev - 1));
 
         await supabase.from('notifications').delete().eq('id', id);
     };
 
     const markAllRead = async () => {
-        const unreadIds = notifications.filter(n => !n.is_read).map(n => n.id);
+        const unreadIds = notifications.filter(n => n.unread).map(n => n.id);
         if (unreadIds.length === 0) return;
 
-        setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
+        setNotifications(prev => prev.map(n => ({ ...n, unread: false })));
         setUnreadCount(0);
 
-        await supabase.from('notifications').update({ is_read: true }).in('id', unreadIds);
+        await supabase.from('notifications').update({ unread: false }).in('id', unreadIds);
     };
 
     return (
@@ -147,7 +144,7 @@ export function NotificationCenter() {
                                     key={notif.id}
                                     className={cn(
                                         "p-4 hover:bg-muted/30 transition-colors relative group",
-                                        !notif.is_read && "bg-primary/5"
+                                        notif.unread && "bg-primary/5"
                                     )}
                                 >
                                     <div className="flex items-start gap-3">
@@ -157,7 +154,7 @@ export function NotificationCenter() {
                                                 notif.type === 'payment' ? 'bg-emerald-500' : 'bg-primary'
                                         )} />
                                         <div className="flex-1 space-y-1">
-                                            <p className={cn("text-xs font-bold leading-none", !notif.is_read && "text-foreground")}>
+                                            <p className={cn("text-xs font-bold leading-none", notif.unread && "text-foreground")}>
                                                 {notif.title}
                                             </p>
                                             <p className="text-[11px] text-muted-foreground leading-snug">
@@ -169,9 +166,8 @@ export function NotificationCenter() {
                                         </div>
                                     </div>
 
-                                    {/* Hover Actions */}
                                     <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        {!notif.is_read && (
+                                        {notif.unread && (
                                             <Button
                                                 variant="ghost"
                                                 size="icon"
