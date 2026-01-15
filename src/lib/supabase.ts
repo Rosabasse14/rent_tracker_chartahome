@@ -12,3 +12,5 @@ export const supabase = createClient(
     supabaseUrl || 'https://placeholder-url.supabase.co',
     supabaseAnonKey || 'placeholder-key'
 );
+console.log("SUPABASE URL:", import.meta.env.VITE_SUPABASE_URL);
+console.log("SUPABASE KEY:", import.meta.env.VITE_SUPABASE_ANON_KEY ? "OK" : "MISSING");
