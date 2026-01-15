@@ -26,31 +26,9 @@ const Login = () => {
 
         setIsLoading(true);
         try {
-            // Check for Super Admin Bypass (Development only - remove in production)
-            if (email.toLowerCase() === 'rdtb1418@gmail.com') {
-                const success = await login(email);
-                if (success) {
-                    navigate('/');
-                } else {
-                    toast.error("Failed to login as Super Admin");
-                }
-                return;
-            }
-
-            // Secure Flow: Magic Link via Supabase
-            const { error } = await supabase.auth.signInWithOtp({
-                email,
-                options: {
-                    emailRedirectTo: window.location.origin,
-                },
-            });
-
-            if (error) {
-                console.error(error);
-                toast.error("Error sending login link: " + error.message);
-            } else {
-                setSent(true);
-                toast.success("Magic link sent! Check your email.");
+            const success = await login(email);
+            if (success) {
+                navigate('/');
             }
         } catch (err) {
             console.error(err);

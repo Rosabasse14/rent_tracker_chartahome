@@ -32,7 +32,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   });
 
   const login = async (email: string) => {
-    // Special case for SuperAdmin (Hardcoded override)
+    // 1. Special case for SuperAdmin
     if (email.toLowerCase() === 'rdtb1418@gmail.com') {
       const superAdmin: User = { id: 'sa', name: 'Master Admin', role: 'SUPER_ADMIN', email };
       setUser(superAdmin);
@@ -41,36 +41,56 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
 
     try {
-      const { data: { user: authUser } } = await supabase.auth.getUser();
+      // 2. Check Profiles Table
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('email', email)
+        .maybeSingle();
 
-      if (authUser && authUser.email === email) {
-        // 1. Check Profiles Table (Preferred)
-        const { data: profile } = await supabase.from('profiles').select('*').eq('id', authUser.id).maybeSingle();
-        if (profile) {
-          setUser({
-            id: profile.id,
-            name: profile.full_name || email.split('@')[0],
-            role: profile.role as UserRole,
-            email: profile.email
-          });
-          localStorage.setItem("auth_email", email);
-          return true;
-        }
-      }
-
-      // 2. Fallback: Check managers table (Legacy/ MVP)
-      const { data: manager } = await supabase.from('managers').select('*').eq('email', email).maybeSingle();
-      if (manager) {
-        setUser({ id: manager.id, name: manager.name, role: (manager.role as UserRole) || 'MANAGER', email: manager.email });
+      if (profile) {
+        setUser({
+          id: profile.id,
+          name: profile.full_name || email.split('@')[0],
+          role: profile.role as UserRole,
+          email: profile.email
+        });
         localStorage.setItem("auth_email", email);
         return true;
       }
 
-      // 3. Fallback: Check tenants table
-      const { data: tenant } = await supabase.from('tenants').select('*').eq('email', email).maybeSingle();
+      // 3. Fallback: Check managers table
+      const { data: manager } = await supabase
+        .from('managers')
+        .select('*')
+        .eq('email', email)
+        .maybeSingle();
+
+      if (manager) {
+        setUser({
+          id: manager.id,
+          name: manager.name,
+          role: (manager.role as UserRole) || 'MANAGER',
+          email: manager.email
+        });
+        localStorage.setItem("auth_email", email);
+        return true;
+      }
+
+      // 4. Fallback: Check tenants table
+      const { data: tenant } = await supabase
+        .from('tenants')
+        .select('*')
+        .eq('email', email)
+        .maybeSingle();
+
       if (tenant) {
-        // If tenant exists but no profile, we might want to create one or just log them in
-        setUser({ id: tenant.id, name: tenant.name, role: 'TENANT', email: tenant.email });
+        setUser({
+          id: tenant.id,
+          name: tenant.name,
+          role: 'TENANT',
+          email: tenant.email
+        });
         localStorage.setItem("auth_email", email);
         return true;
       }
@@ -102,6 +122,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user?.email) {
         await login(session.user.email);
+      } else {
+        const savedEmail = localStorage.getItem("auth_email");
+        if (savedEmail) {
+          await login(savedEmail);
+        }
       }
       setIsLoading(false);
     };
