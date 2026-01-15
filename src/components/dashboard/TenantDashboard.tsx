@@ -29,7 +29,7 @@ export function TenantDashboard() {
                         {t.tenancy_inactive_desc}
                     </p>
                     <div className="p-4 bg-muted/50 rounded-2xl border border-border/50 text-sm text-muted-foreground italic">
-                        "Your tenancy is no longer active."
+                        "{t.tenancy_inactive_desc.split('.')[0]}."
                     </div>
                 </div>
             </div>
@@ -114,7 +114,7 @@ export function TenantDashboard() {
                                     <p className="text-slate-400 text-xs mb-2 uppercase tracking-widest">{t.next_due_date}</p>
                                     <p className="font-bold text-2xl flex items-center gap-2">
                                         <Calendar className="w-5 h-5 text-primary" />
-                                        <span>{language === 'fr' ? 'Fév' : 'Feb'} {tenantInfo.rentDueDay}, 2026</span>
+                                        <span>{new Date(2026, 1, tenantInfo.rentDueDay).toLocaleString(language === 'fr' ? 'fr-FR' : 'en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                                     </p>
                                 </div>
                             </div>
@@ -131,7 +131,7 @@ export function TenantDashboard() {
 
                     <div className="w-full mt-8 pt-8 border-t border-border/50">
                         <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">{t.member_since}</p>
-                        <p className="text-sm font-semibold">{tenantInfo.entryDate}</p>
+                        <p className="text-sm font-semibold">{new Date(tenantInfo.entryDate || '').toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-US')}</p>
                     </div>
                 </div>
             </div>
@@ -169,7 +169,7 @@ export function TenantDashboard() {
                                             <td className="px-8 py-5 text-center">
                                                 <StatusBadge status={payment.status} />
                                             </td>
-                                            <td className="px-8 py-5 text-right text-xs text-muted-foreground">{payment.submittedAt.split(',')[0]}</td>
+                                            <td className="px-8 py-5 text-right text-xs text-muted-foreground">{new Date(payment.submittedAt).toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-US')}</td>
                                         </tr>
                                     ))}
                                 </tbody>

@@ -62,7 +62,7 @@ export function AppSidebar() {
             <Building2 className="w-6 h-6 text-primary" />
           </div>
           <div>
-            <h1 className="font-bold text-foreground tracking-tight text-lg">Rent Tracker</h1>
+            <h1 className="font-bold text-foreground tracking-tight text-lg">Chartahome</h1>
             <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
               {t[user?.role as keyof typeof t] || user?.role?.replace('_', ' ')}
             </p>
@@ -108,7 +108,7 @@ export function AppSidebar() {
 
       {/* Language Switcher */}
       <div className="px-6 py-4 flex items-center justify-between border-t border-sidebar-border/30">
-        <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Locale</span>
+        <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{t.locale}</span>
         <div className="flex bg-muted/50 rounded-lg p-0.5 border border-border/50">
           <button
             onClick={() => setLanguage('en')}

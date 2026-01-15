@@ -1,9 +1,10 @@
-
 import { useState, useEffect } from "react";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { useData } from "@/context/DataContext";
+import { useAuth } from "@/context/AuthContext";
+import { translations } from "@/utils/translations";
 import { RentLedgerEntry } from "@/types";
 import { Filter, ChevronDown, CheckCircle } from "lucide-react";
 import {
@@ -22,6 +23,8 @@ import {
 
 export default function RentLedger() {
   // Use data from context instead of mock imports
+  const { language } = useAuth();
+  const t = translations[language];
   const { tenants, units } = useData();
 
   const [ledger, setLedger] = useState<RentLedgerEntry[]>([]);
@@ -31,7 +34,7 @@ export default function RentLedger() {
   // Generate Ledger based on Tenants' Entry Date
   useEffect(() => {
     generateLedger();
-  }, [selectedTenantId, tenants, units]);
+  }, [selectedTenantId, tenants, units, language]); // Added language to dependencies
 
   const generateLedger = () => {
     let allEntries: RentLedgerEntry[] = [];
@@ -58,7 +61,7 @@ export default function RentLedger() {
       while (currentIterDate <= today && currentIterDate < maxDate) {
         const year = currentIterDate.getFullYear();
         const month = currentIterDate.getMonth();
-        const monthName = currentIterDate.toLocaleString('default', { month: 'long' });
+        const monthName = currentIterDate.toLocaleString(language === 'en' ? 'en-US' : 'fr-FR', { month: 'long' });
         const period = `${monthName} ${year}`;
 
         // Calculate Due Date
@@ -113,7 +116,7 @@ export default function RentLedger() {
           expected,
           paid,
           balance: expected - paid,
-          dueDate: dueDate.toLocaleDateString(),
+          dueDate: dueDate.toLocaleDateString(language === 'en' ? 'en-US' : 'fr-FR'),
           status
         });
 
@@ -136,21 +139,31 @@ export default function RentLedger() {
     ? ledger
     : ledger.filter((entry) => entry.status === statusFilter);
 
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'paid': return t.paid;
+      case 'partial': return t.partial;
+      case 'overdue': return t.overdue;
+      case 'pending': return t.pending;
+      default: return status;
+    }
+  };
+
   return (
     <PageLayout>
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
         <div className="page-header mb-0">
-          <h1 className="page-title">Rent Ledger</h1>
-          <p className="page-description">Entry-date aware auto-generated rent tracking</p>
+          <h1 className="page-title">{t.rent_ledger_title}</h1>
+          <p className="page-description">{t.rent_ledger_desc}</p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
 
           <Select value={selectedTenantId} onValueChange={setSelectedTenantId}>
             <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="All Tenants" />
+              <SelectValue placeholder={t.all_tenants} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Tenants</SelectItem>
+              <SelectItem value="all">{t.all_tenants}</SelectItem>
               {tenants.map(t => (
                 <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
               ))}
@@ -161,22 +174,22 @@ export default function RentLedger() {
             <DropdownMenuTrigger asChild>
               <Button variant="outline">
                 <Filter className="w-4 h-4 mr-2" />
-                {statusFilter === "all" ? "All Status" : statusFilter}
+                {statusFilter === "all" ? t.all_status : getStatusLabel(statusFilter)}
                 <ChevronDown className="w-4 h-4 ml-2" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setStatusFilter("all")}>All Status</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setStatusFilter("paid")}>Paid</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setStatusFilter("partial")}>Partial</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setStatusFilter("overdue")}>Overdue</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setStatusFilter("pending")}>Pending</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setStatusFilter("all")}>{t.all_status}</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setStatusFilter("paid")}>{t.paid}</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setStatusFilter("partial")}>{t.partial}</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setStatusFilter("overdue")}>{t.overdue}</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setStatusFilter("pending")}>{t.pending}</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
           <Button variant="outline" onClick={generateLedger}>
             <CheckCircle className="w-4 h-4 mr-2" />
-            Refresh Ledger
+            {t.refresh_ledger}
           </Button>
         </div>
       </div>
@@ -186,20 +199,20 @@ export default function RentLedger() {
           <table className="w-full text-sm text-left">
             <thead className="bg-muted text-muted-foreground uppercase font-medium">
               <tr className="border-b">
-                <th className="px-4 py-3">Tenant</th>
-                <th className="px-4 py-3">Period</th>
-                <th className="px-4 py-3">Expected</th>
-                <th className="px-4 py-3">Paid</th>
-                <th className="px-4 py-3">Balance</th>
-                <th className="px-4 py-3">Due Date</th>
-                <th className="px-4 py-3">Status</th>
+                <th className="px-4 py-3">{t.tenant}</th>
+                <th className="px-4 py-3">{t.period_col}</th>
+                <th className="px-4 py-3">{t.expected_col}</th>
+                <th className="px-4 py-3">{t.paid_col}</th>
+                <th className="px-4 py-3">{t.balance_col}</th>
+                <th className="px-4 py-3">{t.due_date_col}</th>
+                <th className="px-4 py-3">{t.status_col}</th>
               </tr>
             </thead>
             <tbody className="divide-y">
               {filteredLedger.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="px-4 py-8 text-center text-muted-foreground">
-                    No ledger entries found. Ensure tenants have entry dates set.
+                    {t.no_ledger_entries}
                   </td>
                 </tr>
               ) : filteredLedger.map((entry) => (

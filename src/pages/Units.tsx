@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Unit } from "@/types";
 import { Plus, Home, Building2, DollarSign, User, Trash2 } from "lucide-react";
 import { useData } from "@/context/DataContext";
+import { useAuth } from "@/context/AuthContext";
+import { translations } from "@/utils/translations";
 import {
   Dialog,
   DialogContent,
@@ -23,6 +25,8 @@ import {
 } from "@/components/ui/select";
 
 export default function Units() {
+  const { language } = useAuth();
+  const t = translations[language];
   const { units, properties, addUnit, deleteUnit } = useData();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [newUnit, setNewUnit] = useState({
@@ -54,38 +58,38 @@ export default function Units() {
     <PageLayout>
       <div className="flex items-center justify-between mb-6">
         <div className="page-header mb-0">
-          <h1 className="page-title">Units</h1>
-          <p className="page-description">Manage rental units across your properties</p>
+          <h1 className="page-title">{t.units_title}</h1>
+          <p className="page-description">{t.units_desc}</p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button>
               <Plus className="w-4 h-4 mr-2" />
-              Add Unit
+              {t.add_unit}
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Add New Unit</DialogTitle>
+              <DialogTitle>{t.new_unit}</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 pt-4">
               <div>
-                <Label htmlFor="unitName">Unit Name</Label>
+                <Label htmlFor="unitName">{t.unit_name}</Label>
                 <Input
                   id="unitName"
                   value={newUnit.name}
                   onChange={(e) => setNewUnit({ ...newUnit, name: e.target.value })}
-                  placeholder="e.g., Apt A, Unit 101"
+                  placeholder={t.unit_name_placeholder}
                 />
               </div>
               <div>
-                <Label htmlFor="property">Property</Label>
+                <Label htmlFor="property">{t.property}</Label>
                 <Select
                   value={newUnit.propertyId}
                   onValueChange={(value) => setNewUnit({ ...newUnit, propertyId: value })}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select a property" />
+                    <SelectValue placeholder={t.select_property} />
                   </SelectTrigger>
                   <SelectContent>
                     {properties.map((property) => (
@@ -97,33 +101,33 @@ export default function Units() {
                 </Select>
               </div>
               <div>
-                <Label htmlFor="rent">Monthly Rent (FCFA)</Label>
+                <Label htmlFor="rent">{t.monthly_rent_label}</Label>
                 <Input
                   id="rent"
                   type="number"
                   value={newUnit.monthlyRent}
                   onChange={(e) => setNewUnit({ ...newUnit, monthlyRent: e.target.value })}
-                  placeholder="e.g., 150000"
+                  placeholder={t.monthly_rent_placeholder}
                 />
               </div>
               <div>
-                <Label htmlFor="unitType">Unit Type</Label>
+                <Label htmlFor="unitType">{t.unit_type}</Label>
                 <Select
                   value={newUnit.type}
                   onValueChange={(value) => setNewUnit({ ...newUnit, type: value })}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select unit type" />
+                    <SelectValue placeholder={t.select_unit_type} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Room">Room</SelectItem>
-                    <SelectItem value="Studio">Studio</SelectItem>
-                    <SelectItem value="Apartment">Apartment</SelectItem>
+                    <SelectItem value="Room">{t.type_room}</SelectItem>
+                    <SelectItem value="Studio">{t.type_studio_room}</SelectItem>
+                    <SelectItem value="Apartment">{t.type_apartment_room}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <Button onClick={handleAddUnit} className="w-full">
-                Add Unit
+                {t.add_unit}
               </Button>
             </div>
           </DialogContent>
@@ -140,7 +144,7 @@ export default function Units() {
               <button
                 onClick={() => deleteUnit(unit.id)}
                 className="text-muted-foreground hover:text-destructive transition-colors"
-                aria-label="Delete unit"
+                aria-label={t.delete}
               >
                 <Trash2 className="w-4 h-4" />
               </button>
@@ -152,18 +156,22 @@ export default function Units() {
             </div>
             <div className="flex items-center gap-2 text-primary mb-3">
               <DollarSign className="w-4 h-4" />
-              <span>Monthly Rent (FCFA) • <span className="font-bold uppercase tracking-tighter text-[10px]">{unit.type}</span></span>
+              <span>{t.monthly_rent_label} • <span className="font-bold uppercase tracking-tighter text-[10px]">
+                {unit.type === 'Room' ? t.type_room :
+                  unit.type === 'Studio' ? t.type_studio_room :
+                    unit.type === 'Apartment' ? t.type_apartment_room : unit.type}
+              </span></span>
             </div>
-            <p className="text-2xl font-bold mb-3">{unit.monthlyRent.toLocaleString()}</p>
+            <p className="text-2xl font-bold mb-3">{unit.monthlyRent.toLocaleString()} <span className="text-xs font-medium text-muted-foreground">FCFA</span></p>
             <div className="flex items-center gap-2 text-sm">
               <User className="w-4 h-4 text-muted-foreground" />
               {unit.status === "occupied" ? (
                 <div>
-                  <span className="text-primary font-medium">Occupied</span>
+                  <span className="text-primary font-medium">{t.occupied}</span>
                   <p className="text-muted-foreground">{unit.tenantName}</p>
                 </div>
               ) : (
-                <span className="text-muted-foreground">Vacant</span>
+                <span className="text-muted-foreground">{t.vacant}</span>
               )}
             </div>
           </div>

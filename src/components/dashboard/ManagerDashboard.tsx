@@ -54,7 +54,7 @@ export function ManagerDashboard() {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                 <div>
                     <h1 className="text-4xl font-black tracking-tight text-foreground flex items-center gap-3">
-                        {t.operations_overview.split(' ')[0]} <span className="text-primary">{t.operations_overview.split(' ')[1]}</span>
+                        {t.operations_overview.split(' ')[0]} <span className="text-primary">{t.operations_overview.split(' ').slice(1).join(' ')}</span>
                     </h1>
                     <p className="text-muted-foreground mt-1">{t.operational_backbone}</p>
                 </div>
@@ -108,7 +108,7 @@ export function ManagerDashboard() {
                     <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-700"></div>
                     <div className="relative z-10">
                         <div className="flex justify-between items-start mb-4">
-                            <p className="text-[10px] font-bold text-white/70 uppercase tracking-widest">{t.total_collected}</p>
+                            <p className="text-[10px] font-bold text-white/70 uppercase tracking-widest">{t.total_collected_month}</p>
                             <div className="bg-white/20 px-2 py-0.5 rounded-full text-[10px] font-bold flex items-center gap-1">
                                 <ArrowUpRight className="w-3 h-3" />
                                 +12%
@@ -116,8 +116,8 @@ export function ManagerDashboard() {
                         </div>
                         <h3 className="text-3xl font-black leading-none">{totalCollected.toLocaleString()} <span className="text-sm font-normal text-white/80 ml-1">FCFA</span></h3>
                         <div className="mt-4 pt-4 border-t border-white/10 flex justify-between items-center text-[10px] font-medium text-white/60">
-                            <span>Target: {(totalExpected * 0.9).toLocaleString()} FCFA</span>
-                            <span className="text-white/90">{t.view} Stats →</span>
+                            <span>{t.expected_rent}: {(totalExpected * 0.9).toLocaleString()} FCFA</span>
+                            <span className="text-white/90">{t.view} {t.insights} →</span>
                         </div>
                     </div>
                 </div>
@@ -168,7 +168,7 @@ export function ManagerDashboard() {
                                                     <span className="text-[10px] text-muted-foreground ml-1">FCFA</span>
                                                 </td>
                                                 <td className="px-6 py-5">
-                                                    <span className="text-[10px] font-bold text-muted-foreground uppercase">{payment.paymentMethod || 'Cash'}</span>
+                                                    <span className="text-[10px] font-bold text-muted-foreground uppercase">{payment.paymentMethod || t.method_cash}</span>
                                                 </td>
                                                 <td className="px-6 py-5 text-center">
                                                     <StatusBadge status={payment.status} />

@@ -20,7 +20,7 @@ const Login = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!email) {
-            toast.error("Please enter your email");
+            toast.error(language === 'fr' ? "Veuillez entrer votre email" : "Please enter your email");
             return;
         }
 
@@ -32,7 +32,7 @@ const Login = () => {
             }
         } catch (err) {
             console.error(err);
-            toast.error("An unexpected error occurred");
+            toast.error(language === 'fr' ? "Une erreur inattendue est survenue" : "An unexpected error occurred");
         } finally {
             setIsLoading(false);
         }
@@ -45,9 +45,9 @@ const Login = () => {
                     <div className="mx-auto w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center">
                         <Mail className="w-10 h-10 text-green-500" />
                     </div>
-                    <h1 className="text-3xl font-bold">Check your email</h1>
-                    <p className="text-slate-400">We've sent a magic link to <span className="text-white font-bold">{email}</span>.</p>
-                    <Button variant="outline" onClick={() => setSent(false)} className="mt-4">Back to Login</Button>
+                    <h1 className="text-3xl font-bold">{language === 'fr' ? "Vérifiez vos emails" : "Check your email"}</h1>
+                    <p className="text-slate-400">{language === 'fr' ? "Nous avons envoyé un lien magique à" : "We've sent a magic link to"} <span className="text-white font-bold">{email}</span>.</p>
+                    <Button variant="outline" onClick={() => setSent(false)} className="mt-4">{language === 'fr' ? "Retour" : "Back to Login"}</Button>
                 </div>
             </div>
         );
@@ -79,7 +79,7 @@ const Login = () => {
                                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
                                 <Input
                                     type="email"
-                                    placeholder="name@company.com"
+                                    placeholder={language === 'fr' ? "nom@entreprise.com" : "name@company.com"}
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     className="pl-12 h-14 bg-white/5 border-white/10 rounded-2xl focus:ring-primary focus:border-primary text-lg transition-all"
@@ -106,7 +106,7 @@ const Login = () => {
 
                 <div className="mt-10 text-center">
                     <p className="text-sm text-slate-500 font-medium tracking-tight">
-                        Don't have an account? <span className="text-primary font-bold cursor-pointer hover:underline">Contact your property manager</span>
+                        {language === 'fr' ? "Vous n'avez pas de compte ?" : "Don't have an account?"} <span className="text-primary font-bold cursor-pointer hover:underline">{language === 'fr' ? "Contactez votre gestionnaire" : "Contact your property manager"}</span>
                     </p>
                 </div>
 

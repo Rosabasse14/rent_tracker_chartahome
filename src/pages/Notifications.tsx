@@ -2,30 +2,31 @@
 import { PageLayout } from "@/components/layout/PageLayout";
 import { Bell, AlertCircle, CheckCircle2, Clock, FileText, Info } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import { translations } from "@/utils/translations";
 
 const managerNotifications = [
   {
     id: "1",
     type: "submission",
-    title: "New Payment Proof Submitted",
-    message: "Robert Wilson submitted a payment proof for Suite 1A. Review now.",
-    time: "10 minutes ago",
+    title: { en: "New Payment Proof Submitted", fr: "Nouvelle Preuve de Paiement Soumise" },
+    message: { en: "Robert Wilson submitted a payment proof for Suite 1A. Review now.", fr: "Robert Wilson a soumis une preuve de paiement pour la Suite 1A. Examinez-la maintenant." },
+    time: { en: "10 minutes ago", fr: "il y a 10 minutes" },
     unread: true,
   },
   {
     id: "2",
     type: "overdue",
-    title: "Overdue Alert",
-    message: "Emily Rodriguez overdue for 11 days. System generated reminder sent.",
-    time: "2 hours ago",
+    title: { en: "Overdue Alert", fr: "Alerte de Retard" },
+    message: { en: "Emily Rodriguez overdue for 11 days. System generated reminder sent.", fr: "Emily Rodriguez a 11 jours de retard. Rappel généré par le système envoyé." },
+    time: { en: "2 hours ago", fr: "il y a 2 heures" },
     unread: true,
   },
   {
     id: "3",
     type: "partial",
-    title: "Partial Payment Recorded",
-    message: "Sarah Chen paid 800 FCFA (Partial). Balance: 800 FCFA.",
-    time: "1 day ago",
+    title: { en: "Partial Payment Recorded", fr: "Paiement Partiel Enregistré" },
+    message: { en: "Sarah Chen paid 80,000 FCFA (Partial). Balance: 70,000 FCFA.", fr: "Sarah Chen a payé 80 000 FCFA (Partiel). Solde : 70 000 FCFA." },
+    time: { en: "1 day ago", fr: "il y a 1 jour" },
     unread: false,
   },
 ];
@@ -34,31 +35,32 @@ const tenantNotifications = [
   {
     id: "1",
     type: "payment_success",
-    title: "Payment Confirmed",
-    message: "Your payment of 150,000 FCFA for January 2026 has been approved.",
-    time: "1 day ago",
+    title: { en: "Payment Confirmed", fr: "Paiement Confirmé" },
+    message: { en: "Your payment of 150,000 FCFA for January 2026 has been approved.", fr: "Votre paiement de 150 000 FCFA pour Janvier 2026 a été approuvé." },
+    time: { en: "1 day ago", fr: "il y a 1 jour" },
     unread: true,
   },
   {
     id: "2",
     type: "reminder",
-    title: "Rent Due Soon",
-    message: "Reminder: Rent for February is due on Feb 5th.",
-    time: "3 days ago",
+    title: { en: "Rent Due Soon", fr: "Loyer Bientôt Dû" },
+    message: { en: "Reminder: Rent for February is due on Feb 5th.", fr: "Rappel : Le loyer de Février est dû le 5 Février." },
+    time: { en: "3 days ago", fr: "il y a 3 jours" },
     unread: false,
   },
   {
     id: "3",
     type: "info",
-    title: "Maintenance Notice",
-    message: "Building water maintenance scheduled for Saturday, 10 AM.",
-    time: "5 days ago",
+    title: { en: "Maintenance Notice", fr: "Avis de Maintenance" },
+    message: { en: "Building water maintenance scheduled for Saturday, 10 AM.", fr: "Maintenance de l'eau du bâtiment prévue pour Samedi, 10h." },
+    time: { en: "5 days ago", fr: "il y a 5 jours" },
     unread: false,
   },
 ];
 
 export default function Notifications() {
-  const { user } = useAuth();
+  const { user, language } = useAuth();
+  const t = translations[language];
   const isTenant = user?.role === "TENANT";
   const notifications = isTenant ? tenantNotifications : managerNotifications;
 
@@ -93,10 +95,12 @@ export default function Notifications() {
     <PageLayout>
       <div className="flex items-center justify-between mb-6">
         <div className="page-header mb-0">
-          <h1 className="page-title">Notifications</h1>
-          <p className="page-description">Stay updated on {isTenant ? 'your home' : 'payments and tenant activity'}</p>
+          <h1 className="page-title">{t.notifications_title}</h1>
+          <p className="page-description">
+            {isTenant ? t.notifications_desc_tenant : t.notifications_desc_manager}
+          </p>
         </div>
-        <button className="text-sm text-primary hover:underline">Mark all as read</button>
+        <button className="text-sm text-primary hover:underline">{t.mark_all_read}</button>
       </div>
 
       <div className="space-y-3">
@@ -111,11 +115,11 @@ export default function Notifications() {
             <div className="flex-1">
               <div className="flex justify-between items-start">
                 <h3 className={`font-medium text-sm md:text-base ${notification.unread ? 'text-foreground font-semibold' : 'text-muted-foreground'}`}>
-                  {notification.title}
+                  {notification.title[language]}
                 </h3>
-                <span className="text-xs text-muted-foreground whitespace-nowrap ml-2">{notification.time}</span>
+                <span className="text-xs text-muted-foreground whitespace-nowrap ml-2">{notification.time[language]}</span>
               </div>
-              <p className="text-sm text-muted-foreground mt-1 leading-relaxed">{notification.message}</p>
+              <p className="text-sm text-muted-foreground mt-1 leading-relaxed">{notification.message[language]}</p>
             </div>
             {notification.unread && (
               <div className="w-2 h-2 rounded-full bg-primary mt-2"></div>

@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Property } from "@/types";
 import { Plus, Building2, MapPin, Trash2 } from "lucide-react";
 import { useData } from "@/context/DataContext";
+import { useAuth } from "@/context/AuthContext";
+import { translations } from "@/utils/translations";
 import {
   Dialog,
   DialogContent,
@@ -23,6 +25,8 @@ import {
 } from "@/components/ui/select";
 
 export default function Properties() {
+  const { language } = useAuth();
+  const t = translations[language];
   const { properties, addProperty, deleteProperty } = useData();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [newProperty, setNewProperty] = useState({ name: "", address: "", type: "Apartment Block" });
@@ -47,58 +51,58 @@ export default function Properties() {
     <PageLayout>
       <div className="flex items-center justify-between mb-6">
         <div className="page-header mb-0">
-          <h1 className="page-title">Properties</h1>
-          <p className="page-description">Manage your rental properties</p>
+          <h1 className="page-title">{t.properties_title}</h1>
+          <p className="page-description">{t.properties_desc}</p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button>
               <Plus className="w-4 h-4 mr-2" />
-              Add Property
+              {t.add_property}
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Add New Property</DialogTitle>
+              <DialogTitle>{t.new_property}</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 pt-4">
               <div>
-                <Label htmlFor="name">Property Name</Label>
+                <Label htmlFor="name">{t.property_name}</Label>
                 <Input
                   id="name"
                   value={newProperty.name}
                   onChange={(e) => setNewProperty({ ...newProperty, name: e.target.value })}
-                  placeholder="e.g., Sunset Villa"
+                  placeholder={t.property_name_placeholder}
                 />
               </div>
               <div>
-                <Label htmlFor="address">Location (City / Quarter)</Label>
+                <Label htmlFor="address">{t.property_location}</Label>
                 <Input
                   id="address"
                   value={newProperty.address}
                   onChange={(e) => setNewProperty({ ...newProperty, address: e.target.value })}
-                  placeholder="e.g., Makepe, Douala"
+                  placeholder={t.property_location_placeholder}
                 />
               </div>
               <div>
-                <Label htmlFor="type">Property Type</Label>
+                <Label htmlFor="type">{t.property_type}</Label>
                 <Select
                   value={newProperty.type}
                   onValueChange={(value) => setNewProperty({ ...newProperty, type: value })}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select type" />
+                    <SelectValue placeholder={t.select_type} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Apartment Block">Apartment Block</SelectItem>
-                    <SelectItem value="Compound">Compound</SelectItem>
-                    <SelectItem value="Studio Complex">Studio Complex</SelectItem>
-                    <SelectItem value="Townhouse">Townhouse</SelectItem>
+                    <SelectItem value="Apartment Block">{t.type_apartment}</SelectItem>
+                    <SelectItem value="Compound">{t.type_compound}</SelectItem>
+                    <SelectItem value="Studio Complex">{t.type_studio}</SelectItem>
+                    <SelectItem value="Townhouse">{t.type_townhouse}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <Button onClick={handleAddProperty} className="w-full">
-                Add Property
+                {t.add_property}
               </Button>
             </div>
           </DialogContent>
@@ -114,12 +118,16 @@ export default function Properties() {
               </div>
               <div className="flex gap-2">
                 <span className="text-[10px] bg-muted px-2 py-0.5 rounded-full font-bold uppercase tracking-wider text-muted-foreground border border-border">
-                  {property.type}
+                  {property.type === 'Apartment Block' ? t.type_apartment :
+                    property.type === 'Compound' ? t.type_compound :
+                      property.type === 'Studio Complex' ? t.type_studio :
+                        property.type === 'Townhouse' ? t.type_townhouse :
+                          property.type}
                 </span>
                 <button
                   onClick={() => deleteProperty(property.id)}
                   className="text-muted-foreground hover:text-destructive transition-colors"
-                  aria-label="Delete property"
+                  aria-label={t.delete}
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
@@ -131,7 +139,7 @@ export default function Properties() {
               <span>{property.address}</span>
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Units</p>
+              <p className="text-sm text-muted-foreground">{t.units}</p>
               <p className="text-2xl font-bold">{property.units}</p>
             </div>
           </div>

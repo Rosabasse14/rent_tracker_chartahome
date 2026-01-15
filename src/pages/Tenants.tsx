@@ -7,6 +7,8 @@ import { StatusBadge } from "@/components/ui/StatusBadge";
 import { Tenant } from "@/types";
 import { Plus, Users, Mail, Phone, Home, MoreVertical, Calendar, Clock } from "lucide-react";
 import { useData } from "@/context/DataContext";
+import { useAuth } from "@/context/AuthContext";
+import { translations } from "@/utils/translations";
 import {
   Dialog,
   DialogContent,
@@ -31,6 +33,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export default function Tenants() {
+  const { language } = useAuth();
+  const t = translations[language];
   const { tenants, units, addTenant, deleteTenant, vacateUnit } = useData();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [newTenant, setNewTenant] = useState({
@@ -45,7 +49,7 @@ export default function Tenants() {
 
   const handleAddTenant = async () => {
     if (!newTenant.name || !newTenant.phone || !newTenant.entryDate) {
-      toast.error("Please fill in all required fields");
+      toast.error(t.fill_all_fields);
       return;
     }
 
@@ -75,7 +79,7 @@ export default function Tenants() {
     if (success) {
       setNewTenant({ name: "", email: "", phone: "", unitId: "", nationalId: "", entryDate: "", rentDueDay: "5" });
       setIsDialogOpen(false);
-      toast.success("Tenant onboarded successfully!");
+      toast.success(t.tenant_onboarded_success);
     }
   };
 
@@ -86,34 +90,34 @@ export default function Tenants() {
     <PageLayout>
       <div className="flex items-center justify-between mb-6">
         <div className="page-header mb-0">
-          <h1 className="page-title">Tenants</h1>
-          <p className="page-description">{tenants.length} tenants registered</p>
+          <h1 className="page-title">{t.tenants_title}</h1>
+          <p className="page-description">{tenants.length} {t.tenants_registered}</p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button>
+            <Button aria-label={t.add_tenant}>
               <Plus className="w-4 h-4 mr-2" />
-              Add Tenant
+              {t.add_tenant}
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Onboard New Tenant</DialogTitle>
+              <DialogTitle>{t.onboard_new_tenant}</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 pt-4">
               <div>
-                <Label htmlFor="name">Full Name <span className="text-red-500">*</span></Label>
+                <Label htmlFor="name">{t.full_name} <span className="text-red-500">*</span></Label>
                 <Input
                   id="name"
                   value={newTenant.name}
                   onChange={(e) => setNewTenant({ ...newTenant, name: e.target.value })}
-                  placeholder="e.g., John Smith"
+                  placeholder={t.full_name_placeholder}
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="phone">Phone <span className="text-red-500">*</span></Label>
+                  <Label htmlFor="phone">{t.phone} <span className="text-red-500">*</span></Label>
                   <Input
                     id="phone"
                     value={newTenant.phone}
@@ -122,7 +126,7 @@ export default function Tenants() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="email">Email (Optional)</Label>
+                  <Label htmlFor="email">{t.email_optional}</Label>
                   <Input
                     id="email"
                     type="email"
@@ -134,18 +138,18 @@ export default function Tenants() {
               </div>
 
               <div>
-                <Label htmlFor="nationalId">National ID (Optional)</Label>
+                <Label htmlFor="nationalId">{t.national_id_optional}</Label>
                 <Input
                   id="nationalId"
                   value={newTenant.nationalId}
                   onChange={(e) => setNewTenant({ ...newTenant, nationalId: e.target.value })}
-                  placeholder="ID Card Number"
+                  placeholder={t.id_card_number}
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="entryDate">Entry Date <span className="text-red-500">*</span></Label>
+                  <Label htmlFor="entryDate">{t.entry_date} <span className="text-red-500">*</span></Label>
                   <Input
                     id="entryDate"
                     type="date"
@@ -154,7 +158,7 @@ export default function Tenants() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="rentDay">Rent Due Day</Label>
+                  <Label htmlFor="rentDay">{t.rent_due_day}</Label>
                   <Input
                     id="rentDay"
                     type="number"
@@ -167,18 +171,18 @@ export default function Tenants() {
               </div>
 
               <div>
-                <Label htmlFor="unit">Assign Unit (Vacant Only)</Label>
+                <Label htmlFor="unit">{t.assign_unit}</Label>
                 <Select
                   value={newTenant.unitId}
                   onValueChange={(value) => setNewTenant({ ...newTenant, unitId: value })}
                 >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a vacant unit (Optional)" />
+                  <SelectTrigger aria-label={t.select_vacant_unit}>
+                    <SelectValue placeholder={t.select_vacant_unit} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="none">No Unit Assigned</SelectItem>
+                    <SelectItem value="none">{t.no_unit_assigned}</SelectItem>
                     {vacantUnits.length === 0 ? (
-                      <div className="p-2 text-sm text-muted-foreground text-center italic">No vacant units available</div>
+                      <div className="p-2 text-sm text-muted-foreground text-center italic">{t.no_vacant_units}</div>
                     ) : (
                       vacantUnits.map((unit) => (
                         <SelectItem key={unit.id} value={unit.id}>
@@ -189,7 +193,7 @@ export default function Tenants() {
                   </SelectContent>
                 </Select>
                 <p className="text-[10px] text-muted-foreground mt-1 px-1">
-                  If no unit is assigned, the tenant will see a blocking screen on login.
+                  {t.tenancy_blocked_hint}
                 </p>
               </div>
 
@@ -197,8 +201,9 @@ export default function Tenants() {
                 onClick={handleAddTenant}
                 className="w-full h-12 text-base font-bold"
                 disabled={!newTenant.name || !newTenant.phone || !newTenant.entryDate}
+                aria-label={t.onboard_tenant_btn}
               >
-                Onboard Tenant
+                {t.onboard_tenant_btn}
               </Button>
             </div>
           </DialogContent>
@@ -209,7 +214,7 @@ export default function Tenants() {
         {tenants.map((tenant) => (
           <div key={tenant.id} className="tenant-card flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center" aria-label={t.tenant_icon}>
                 <Users className="w-6 h-6 text-primary" />
               </div>
               <div>
@@ -218,33 +223,33 @@ export default function Tenants() {
                   <StatusBadge status={tenant.status} />
                   {!tenant.unitId && (
                     <span className="text-[10px] bg-amber-100 text-amber-700 font-bold px-2 py-0.5 rounded-full uppercase tracking-tighter border border-amber-200">
-                      Unassigned
+                      {t.unassigned}
                     </span>
                   )}
                 </div>
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
                   <div className="flex items-center gap-1">
-                    <Home className="w-3.5 h-3.5" />
+                    <Home className="w-3.5 h-3.5" aria-label={t.unit_icon} />
                     {tenant.unitId ? (
                       <>
                         <span className="text-primary font-medium">{tenant.unitName}</span>
                         <span className="text-xs">• {tenant.propertyName}</span>
                       </>
                     ) : (
-                      <span className="text-muted-foreground/60 italic">No Unit Assigned</span>
+                      <span className="text-muted-foreground/60 italic">{t.no_unit_assigned}</span>
                     )}
                   </div>
                 </div>
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground mt-1">
                   {tenant.email && (
                     <div className="flex items-center gap-1">
-                      <Mail className="w-3 h-3" />
+                      <Mail className="w-3 h-3" aria-label={t.email_icon} />
                       <span>{tenant.email}</span>
                     </div>
                   )}
                   {tenant.phone && (
                     <div className="flex items-center gap-1">
-                      <Phone className="w-3 h-3" />
+                      <Phone className="w-3 h-3" aria-label={t.phone_icon} />
                       <span>{tenant.phone}</span>
                     </div>
                   )}
@@ -255,39 +260,41 @@ export default function Tenants() {
             <div className="flex items-center gap-6 text-sm pl-16 md:pl-0">
               <div className="flex flex-col items-start md:items-end">
                 <span className="text-xs text-muted-foreground flex items-center gap-1">
-                  <Calendar className="w-3 h-3" /> Entry
+                  <Calendar className="w-3 h-3" aria-label={t.entry_date_icon} /> {t.entry}
                 </span>
                 <span className="font-medium">{tenant.entryDate}</span>
               </div>
               <div className="flex flex-col items-start md:items-end">
                 <span className="text-xs text-muted-foreground flex items-center gap-1">
-                  <Clock className="w-3 h-3" /> Due Day
+                  <Clock className="w-3 h-3" aria-label={t.rent_due_day_icon} /> {t.due_day}
                 </span>
-                <span className="font-medium text-emerald-600">{tenant.rentDueDay}th</span>
+                <span className="font-medium text-emerald-600">{tenant.rentDueDay}{language === 'fr' ? (tenant.rentDueDay === 1 ? 'er' : 'e') : (tenant.rentDueDay === 1 ? 'st' : tenant.rentDueDay === 2 ? 'nd' : tenant.rentDueDay === 3 ? 'rd' : 'th')}</span>
               </div>
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="p-2 hover:bg-muted rounded-lg transition-colors">
+                  <button className="p-2 hover:bg-muted rounded-lg transition-colors" aria-label={t.more_options}>
                     <MoreVertical className="w-4 h-4 text-muted-foreground" />
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem>View Profile</DropdownMenuItem>
-                  <DropdownMenuItem>Rent Ledger</DropdownMenuItem>
+                  <DropdownMenuItem aria-label={t.view_profile}>{t.view_profile}</DropdownMenuItem>
+                  <DropdownMenuItem aria-label={t.rent_ledger_item}>{t.rent_ledger_item}</DropdownMenuItem>
                   {tenant.status === 'active' && tenant.unitId && (
                     <DropdownMenuItem
                       className="text-amber-600 font-bold"
                       onClick={() => vacateUnit(tenant.id)}
+                      aria-label={t.vacate_unit}
                     >
-                      Vacate Unit
+                      {t.vacate_unit}
                     </DropdownMenuItem>
                   )}
                   <DropdownMenuItem
                     className="text-destructive"
                     onClick={() => deleteTenant(tenant.id)}
+                    aria-label={t.delete}
                   >
-                    Delete
+                    {t.delete}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

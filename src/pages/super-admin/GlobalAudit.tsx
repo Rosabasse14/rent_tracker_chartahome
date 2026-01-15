@@ -20,7 +20,7 @@ export default function GlobalAudit() {
     const [managerFilter, setManagerFilter] = useState("all");
     const [statusFilter, setStatusFilter] = useState(searchParams.get('status') || "all");
 
-    const currentMonth = new Date().toLocaleString('default', { month: 'long', year: 'numeric' });
+    const currentMonth = new Date().toLocaleString(language === 'en' ? 'en-US' : 'fr-FR', { month: 'long', year: 'numeric' });
 
     // Helper to get rent status for a unit
     const getRentStatus = (unitId: string, monthlyRent: number, unitName: string) => {

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Bell, Check, Trash2, X } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/context/AuthContext';
+import { translations } from "@/utils/translations";
 import {
     Popover,
     PopoverContent,
@@ -22,7 +23,8 @@ interface Notification {
 }
 
 export function NotificationCenter() {
-    const { user } = useAuth();
+    const { user, language } = useAuth();
+    const t = translations[language];
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [unreadCount, setUnreadCount] = useState(0);
     const [isOpen, setIsOpen] = useState(false);
@@ -70,7 +72,7 @@ export function NotificationCenter() {
         return () => {
             supabase.removeChannel(channel);
         };
-    }, [user]);
+    }, [user, language]);
 
     const markAsRead = async (id: string) => {
         // Optimistic update
@@ -111,7 +113,7 @@ export function NotificationCenter() {
             </PopoverTrigger>
             <PopoverContent className="w-80 p-0 rounded-2xl shadow-xl border-border/50" align="end">
                 <div className="p-4 border-b border-border/50 flex items-center justify-between bg-muted/30">
-                    <h4 className="font-black text-sm tracking-tight">Notifications</h4>
+                    <h4 className="font-black text-sm tracking-tight">{t.notifications_title}</h4>
                     {unreadCount > 0 && (
                         <Button
                             variant="ghost"
@@ -119,7 +121,7 @@ export function NotificationCenter() {
                             onClick={markAllRead}
                             className="text-[10px] font-bold uppercase tracking-widest text-primary h-6 px-2 hover:bg-primary/10 rounded-lg"
                         >
-                            Mark all read
+                            {t.mark_all_read}
                         </Button>
                     )}
                 </div>
@@ -127,7 +129,7 @@ export function NotificationCenter() {
                     {notifications.length === 0 ? (
                         <div className="flex flex-col items-center justify-center h-[200px] text-muted-foreground px-6 text-center">
                             <Bell className="w-8 h-8 opacity-20 mb-3" />
-                            <p className="text-xs font-medium">No new notifications</p>
+                            <p className="text-xs font-medium">{t.no_new_notifications}</p>
                         </div>
                     ) : (
                         <div className="divide-y divide-border/50">
@@ -153,7 +155,7 @@ export function NotificationCenter() {
                                                 {notif.message}
                                             </p>
                                             <p className="text-[10px] text-muted-foreground/60 font-medium">
-                                                {new Date(notif.created_at).toLocaleDateString()}
+                                                {new Date(notif.created_at).toLocaleDateString(language === 'en' ? 'en-US' : 'fr-FR')}
                                             </p>
                                         </div>
                                     </div>
