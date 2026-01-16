@@ -97,7 +97,7 @@ export default function Units() {
               {t.add_unit}
             </Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="max-h-[85vh] overflow-y-auto w-full max-w-lg rounded-xl">
             <DialogHeader>
               <DialogTitle>{t.new_unit}</DialogTitle>
               <DialogDescription>

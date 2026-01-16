@@ -95,7 +95,7 @@ export default function Properties() {
               {t.add_property}
             </Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="max-h-[85vh] overflow-y-auto w-full max-w-lg rounded-xl">
             <DialogHeader>
               <DialogTitle>{t.new_property}</DialogTitle>
               <DialogDescription>
