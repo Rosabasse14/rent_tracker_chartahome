@@ -27,7 +27,7 @@ import {
 
 export default function Units() {
   const { language } = useAuth();
-  const t = translations[language];
+  const t = translations[language] as any;
   const { units, properties, tenants, addUnit, deleteUnit } = useData();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedUnit, setSelectedUnit] = useState<Unit | null>(null);
@@ -319,6 +319,14 @@ export default function Units() {
                   <div>
                     <p className="text-[10px] uppercase font-bold text-muted-foreground">{t.unit_bathrooms}</p>
                     <p className="font-medium">{selectedUnit.bathrooms || '-'}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] uppercase font-bold text-muted-foreground">{t.unit_deposit}</p>
+                    <p className="font-medium">{selectedUnit.depositAmount ? selectedUnit.depositAmount.toLocaleString() : '-'} <span className="text-[10px] text-muted-foreground">FCFA</span></p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] uppercase font-bold text-muted-foreground">{t.unit_maintenance}</p>
+                    <p className="font-medium">{selectedUnit.maintenanceFee ? selectedUnit.maintenanceFee.toLocaleString() : '-'} <span className="text-[10px] text-muted-foreground">FCFA</span></p>
                   </div>
                 </div>
 

@@ -18,13 +18,27 @@ import { InsightsCharts } from "@/components/dashboard/InsightsCharts";
 
 export function ManagerDashboard() {
     const { paymentProofs, units, properties, overduePayments } = useData();
-    const { language } = useAuth();
+    const { language, user } = useAuth();
     const t = translations[language];
 
-    // Derive stats
-    const totalProperties = properties.length;
-    const totalUnitsCount = units.length;
-    const occupiedUnitsCount = units.filter(u => u.status === 'occupied').length;
+    // Filter logic to ensure Managers only see THEIR data stats, even if global context has more.
+
+
+    // 1. Identify Manager's Properties
+    const myProperties = properties.filter(p => p.managerId === user?.id);
+    const myPropertyIds = myProperties.map(p => p.id);
+
+    // 2. Identify Units in those properties
+    const myUnits = units.filter(u => myPropertyIds.includes(u.propertyId));
+    const myUnitIds = myUnits.map(u => u.id);
+
+    // 3. Identify Payments related to those units
+    const myPayments = paymentProofs.filter(p => myUnitIds.includes(p.unitId || ""));
+
+    // Derive stats from FILTERED data
+    const totalProperties = myProperties.length;
+    const totalUnitsCount = myUnits.length;
+    const occupiedUnitsCount = myUnits.filter(u => u.status === 'occupied').length;
     const vacantUnitsCount = totalUnitsCount - occupiedUnitsCount;
 
     // Rent Collected (Current Month)
@@ -32,12 +46,13 @@ export function ManagerDashboard() {
     const currentYear = new Date().getFullYear();
     const periodString = `${currentMonth} ${currentYear}`;
 
-    const totalCollected = paymentProofs
+    // Calculate total collected using FILTERED payments
+    const totalCollected = myPayments
         .filter(p => p.status === 'paid' && p.period === periodString)
         .reduce((sum, p) => sum + p.amount, 0);
 
-    // Outstanding - simple mock for UI
-    const totalExpected = units.reduce((sum, u) => sum + u.monthlyRent, 0);
+    // Outstanding - calculated from FILTERED units
+    const totalExpected = myUnits.reduce((sum, u) => sum + u.monthlyRent, 0);
 
     return (
         <PageLayout>
@@ -105,7 +120,7 @@ export function ManagerDashboard() {
                         </div>
                         <h3 className="text-3xl font-black leading-none">{totalCollected.toLocaleString()} <span className="text-sm font-normal text-white/80 ml-1">FCFA</span></h3>
                         <div className="mt-4 pt-4 border-t border-white/10 flex justify-between items-center text-[10px] font-medium text-white/60">
-                            <span>{t.expected_rent}: {(totalExpected * 0.9).toLocaleString()} FCFA</span>
+                            <span>{t.expected_rent || "Potential"}: {totalExpected.toLocaleString()} FCFA</span>
                             <span className="text-white/90 cursor-pointer hover:underline">{t.view} {t.insights} →</span>
                         </div>
                     </div>
@@ -117,7 +132,7 @@ export function ManagerDashboard() {
                 <div className="flex items-center justify-between px-2 mb-6">
                     <h2 className="text-2xl font-black tracking-tight">{t.insights}</h2>
                 </div>
-                <InsightsCharts />
+                <InsightsCharts units={myUnits} paymentProofs={myPayments} />
             </div>
 
             {/* Recent Activity Section (Full Width Now) */}
@@ -129,7 +144,7 @@ export function ManagerDashboard() {
                     </div>
 
                     <div className="bg-card rounded-[2.5rem] border shadow-sm overflow-hidden p-2">
-                        {paymentProofs.length === 0 ? (
+                        {myPayments.length === 0 ? (
                             <div className="p-16 text-center text-muted-foreground bg-muted/20 rounded-[2rem]">
                                 <Clock className="w-12 h-12 mx-auto mb-4 opacity-10" />
                                 <p className="font-medium italic">{t.no_submissions}</p>
@@ -147,7 +162,7 @@ export function ManagerDashboard() {
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-border/50">
-                                        {paymentProofs.slice(0, 6).map((payment) => (
+                                        {myPayments.slice(0, 6).map((payment) => (
                                             <tr key={payment.id} className="hover:bg-muted/30 transition-all group">
                                                 <td className="px-6 py-5">
                                                     <div className="flex items-center gap-3">

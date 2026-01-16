@@ -14,15 +14,29 @@ import {
     Tooltip,
     Legend,
     ResponsiveContainer,
-    LineChart,
-    Line,
 } from "recharts";
-import { AlertCircle, Clock, TrendingUp, Wallet, Wrench } from "lucide-react";
+import { AlertCircle, TrendingUp, Wallet, Target } from "lucide-react";
+import { Unit, PaymentProof, Tenant } from "@/types";
 
-export function InsightsCharts() {
-    const { units, tenants, paymentProofs } = useData();
+interface InsightsChartsProps {
+    units?: Unit[];
+    paymentProofs?: PaymentProof[];
+    tenants?: Tenant[];
+}
+
+export function InsightsCharts({
+    units: propUnits,
+    paymentProofs: propPaymentProofs,
+    tenants: propTenants
+}: InsightsChartsProps) {
+    const contextData = useData();
     const { language } = useAuth();
-    const t = translations[language];
+    const t = translations[language] as any;
+
+    // Use props if provided, otherwise fallback to context
+    const units = propUnits || contextData.units;
+    const paymentProofs = propPaymentProofs || contextData.paymentProofs;
+    // const tenants = propTenants || contextData.tenants; // Unused for now but kept for consistency
 
     // --- 1. Occupancy Rate ---
     const occupiedCount = units.filter((u) => u.status === "occupied").length;
@@ -41,40 +55,33 @@ export function InsightsCharts() {
     }).reverse();
 
     const revenueData = last6Months.map((month) => {
-        // This is a naive match on the "period" string or submittedAt date
-        // paymentProofs.period is "Month Year" (e.g., "January 2026")
-        // Let's try to match loosely to the payment.period
         const total = paymentProofs
-            .filter((p) => p.status === "paid" && (p.period.includes(month.split(" ")[0]) || p.submittedAt.includes(month.split(" ")[0]))) // Crude match
+            .filter((p) => p.status === "paid" && (p.period.includes(month.split(" ")[0]) || p.submittedAt.includes(month.split(" ")[0])))
             .reduce((sum, p) => sum + p.amount, 0);
         return { name: month, revenue: total };
     });
 
+    // --- 3. Potential vs Actual (This Month) ---
+    // Calculate total potential monthly rent for ALL units (assuming all were occupied and paid)
+    const totalPotentialRent = units.reduce((sum, u) => sum + (u.monthlyRent || 0), 0);
 
-    // --- 3. Lease Expirations (Next 60 Days) ---
-    const today = new Date();
-    const next60Days = new Date();
-    next60Days.setDate(today.getDate() + 60);
+    // Calculate actual collected for CURRENT month
+    const currentMonthStr = new Date().toLocaleString(language === 'fr' ? 'fr-FR' : 'en-US', { month: 'long' });
+    const currentYear = new Date().getFullYear();
+    // Match "January 2026" format roughly
+    const currentPeriodMatch = `${currentMonthStr} ${currentYear}`;
 
-    const expiringLeases = tenants
-        .filter((tenant) => {
-            if (!tenant.leaseEnd) return false;
-            const leaseDate = new Date(tenant.leaseEnd);
-            return leaseDate >= today && leaseDate <= next60Days;
-        })
-        .sort((a, b) => new Date(a.leaseEnd!).getTime() - new Date(b.leaseEnd!).getTime())
-        .slice(0, 5);
+    const actualCollected = paymentProofs
+        .filter(p => p.status === 'paid' && p.period.includes(currentMonthStr)) // Loose match for robustness
+        .reduce((sum, p) => sum + p.amount, 0);
+
+    const potentialVsActualData = [
+        { name: t.potential || "Potential", amount: totalPotentialRent, fill: "#cbd5e1" }, // Slate-300
+        { name: t.collected || "Collected", amount: actualCollected, fill: "#10b981" }  // Emerald-500
+    ];
 
     // --- 4. Vacancy Listing ---
     const vacantUnits = units.filter((u) => u.status === "vacant").slice(0, 5);
-
-    // --- 5. Maintenance Requests (Mocked) ---
-    // Since we don't have a real table, we'll mock this for visualization
-    const maintenanceRequests = [
-        { id: 1, unit: "Unit 101", issue: "Plumbing Leak", status: "urgent" },
-        { id: 2, unit: "Unit 204", issue: "AC Repair", status: "pending" },
-        { id: 3, unit: "Unit 305", issue: "Broken Window", status: "completed" },
-    ];
 
     return (
         <div className="space-y-8">
@@ -152,8 +159,51 @@ export function InsightsCharts() {
                 </div>
             </div>
 
-            {/* Bottom Grid: Alerts & Lists */}
+            {/* Bottom Row: Potential vs Actual & Vacant Units */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                {/* Potential vs Actual Chart */}
+                <div className="bg-card p-6 rounded-[2rem] border border-border/50 shadow-sm">
+                    <div className="flex items-center justify-between mb-6">
+                        <h3 className="text-xl font-black flex items-center gap-2">
+                            <Target className="w-5 h-5 text-indigo-600" />
+                            {t.financial_performance || "Performance"}
+                        </h3>
+                    </div>
+                    <p className="text-xs text-muted-foreground mb-4">
+                        {t.potential_vs_actual_desc || "Potential revenue based on 100% occupancy vs Actual collected amount."}
+                    </p>
+                    <div className="h-48 w-full">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <BarChart layout="vertical" data={potentialVsActualData} margin={{ left: 20 }}>
+                                <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="hsl(var(--muted))" />
+                                <XAxis type="number" hide />
+                                <YAxis
+                                    dataKey="name"
+                                    type="category"
+                                    axisLine={false}
+                                    tickLine={false}
+                                    tick={{ fontSize: 12, fontWeight: 700, fill: "hsl(var(--foreground))" }}
+                                    width={80}
+                                />
+                                <Tooltip
+                                    cursor={{ fill: 'hsl(var(--muted)/0.2)' }}
+                                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                                    formatter={(value: number) => [`${value.toLocaleString()} FCFA`, 'Amount']}
+                                />
+                                <Bar dataKey="amount" radius={[0, 4, 4, 0]} barSize={24}>
+                                    {potentialVsActualData.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={entry.fill} />
+                                    ))}
+                                </Bar>
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </div>
+                    <div className="mt-4 flex justify-between text-xs font-medium">
+                        <div className="text-slate-500">{t.gap || "Gap"}: <span className="text-red-500 font-bold">{(totalPotentialRent - actualCollected).toLocaleString()} FCFA</span></div>
+                        <div className="text-emerald-600 font-bold">{totalPotentialRent > 0 ? Math.round((actualCollected / totalPotentialRent) * 100) : 0}% {t.realized || "Realized"}</div>
+                    </div>
+                </div>
 
                 {/* Vacant Units */}
                 <div className="bg-card p-6 rounded-[2rem] border border-border/50 shadow-sm">
@@ -183,3 +233,4 @@ export function InsightsCharts() {
         </div>
     );
 }
+

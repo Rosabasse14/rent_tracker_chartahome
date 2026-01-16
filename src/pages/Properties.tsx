@@ -27,7 +27,7 @@ import {
 
 export default function Properties() {
   const { language, user } = useAuth();
-  const t = translations[language];
+  const t = translations[language] as any;
   const { properties, units, tenants, addProperty, deleteProperty } = useData();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
@@ -349,6 +349,14 @@ export default function Properties() {
                   <div>
                     <p className="text-[10px] uppercase font-bold text-muted-foreground">{t.unit_bathrooms}</p>
                     <p className="font-medium">{selectedUnit.bathrooms || '-'}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] uppercase font-bold text-muted-foreground">{t.unit_deposit}</p>
+                    <p className="font-medium">{selectedUnit.depositAmount ? selectedUnit.depositAmount.toLocaleString() : '-'} <span className="text-[10px] text-muted-foreground">FCFA</span></p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] uppercase font-bold text-muted-foreground">{t.unit_maintenance}</p>
+                    <p className="font-medium">{selectedUnit.maintenanceFee ? selectedUnit.maintenanceFee.toLocaleString() : '-'} <span className="text-[10px] text-muted-foreground">FCFA</span></p>
                   </div>
                 </div>
 
