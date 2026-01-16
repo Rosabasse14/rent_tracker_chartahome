@@ -209,18 +209,10 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     /* ================= CRUD ================= */
 
     const addProperty = async (property: Property) => {
-        // TEMPORARY FIX: Always set manager_id to null to avoid foreign key errors
-        // TODO: Properly sync managers with profiles table
-        const sanitizedManagerId = null;
-
-        console.log("=== ADD PROPERTY DEBUG ===");
-        console.log("Original managerId:", property.managerId);
-        console.log("Sanitized managerId:", sanitizedManagerId);
-
         const dbProperty = {
             name: property.name,
             address: property.address,
-            manager_id: sanitizedManagerId,
+            manager_id: property.managerId || null,
             description: property.description,
             city: property.city,
             state: property.state,
