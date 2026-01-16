@@ -92,9 +92,9 @@ export function SuperAdminDashboard() {
                 />
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 gap-8">
                 {/* Visual Overview */}
-                <div className="lg:col-span-2 space-y-8">
+                <div className="space-y-8">
                     <div className="bg-card rounded-[2.5rem] border shadow-sm p-8 overflow-hidden relative group">
                         <div className="flex items-center justify-between mb-8">
                             <h2 className="text-2xl font-black tracking-tight flex items-center gap-2">
@@ -135,20 +135,7 @@ export function SuperAdminDashboard() {
                             </div>
                         </div>
 
-                        <div className="mt-8 p-6 bg-amber-50 rounded-[1.5rem] border border-amber-100 flex items-center justify-between">
-                            <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 bg-amber-100 rounded-2xl flex items-center justify-center text-amber-600">
-                                    <AlertCircle className="w-6 h-6" />
-                                </div>
-                                <div>
-                                    <h4 className="text-sm font-black text-amber-900 uppercase tracking-widest leading-none mb-1">{t.immediate_attention}</h4>
-                                    <p className="text-xs text-amber-700 font-medium">12 {t.units} {t.remain_unpaid_msg}.</p>
-                                </div>
-                            </div>
-                            <Link to="/super-admin/audit" className="px-5 py-2.5 bg-white border border-amber-200 text-amber-700 font-bold rounded-xl text-xs hover:bg-amber-100 transition-colors whitespace-nowrap">
-                                {t.view_unpaid}
-                            </Link>
-                        </div>
+
                     </div>
 
                     <div className="flex items-center justify-between px-2">
@@ -168,98 +155,67 @@ export function SuperAdminDashboard() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-border/50">
-                                {managers.slice(0, 5).map((manager) => (
-                                    <tr key={manager.id} className="hover:bg-muted/30 transition-all group">
-                                        <td className="px-8 py-5">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center font-bold text-primary group-hover:scale-110 transition-transform">
-                                                    {manager.name.charAt(0)}
+                                {managers.slice(0, 5).map((manager) => {
+                                    const managerProperties = properties.filter(p => p.managerId === manager.id);
+                                    const managerUnitIds = units.filter(u => managerProperties.some(p => p.id === u.propertyId));
+                                    const totalManagerUnits = managerUnitIds.length;
+                                    const occupiedCount = managerUnitIds.filter(u => u.status === 'occupied').length;
+                                    const occupancyRate = totalManagerUnits > 0 ? Math.round((occupiedCount / totalManagerUnits) * 100) : 0;
+
+                                    return (
+                                        <tr key={manager.id} className="hover:bg-muted/30 transition-all group">
+                                            <td className="px-8 py-5">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center font-bold text-primary group-hover:scale-110 transition-transform">
+                                                        {manager.name.charAt(0)}
+                                                    </div>
+                                                    <div>
+                                                        <span className="font-extrabold text-slate-900 block">{manager.name}</span>
+                                                        <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-tighter">{manager.email}</p>
+                                                    </div>
                                                 </div>
-                                                <div>
-                                                    <span className="font-extrabold text-slate-900 block">{manager.name}</span>
-                                                    <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-tighter">{manager.email}</p>
+                                            </td>
+                                            <td className="px-8 py-5">
+                                                <span className="font-bold text-slate-600">{manager.city}</span>
+                                            </td>
+                                            <td className="px-8 py-5">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="font-black text-slate-900 text-lg">{managerProperties.length.toString().padStart(2, '0')}</span>
+                                                    <div className="flex -space-x-2">
+                                                        {Array.from({ length: Math.min(3, managerProperties.length) }).map((_, i) => (
+                                                            <div key={i} className="w-6 h-6 rounded-full border-2 border-white bg-slate-200"></div>
+                                                        ))}
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </td>
-                                        <td className="px-8 py-5">
-                                            <span className="font-bold text-slate-600">{manager.city}</span>
-                                        </td>
-                                        <td className="px-8 py-5">
-                                            <div className="flex items-center gap-2">
-                                                <span className="font-black text-slate-900 text-lg">04</span>
-                                                <div className="flex -space-x-2">
-                                                    {[1, 2, 3].map(i => (
-                                                        <div key={i} className="w-6 h-6 rounded-full border-2 border-white bg-slate-200"></div>
-                                                    ))}
+                                            </td>
+                                            <td className="px-8 py-5">
+                                                <div className="flex flex-col items-center gap-1">
+                                                    <span className={`text-xs font-black ${occupancyRate >= 80 ? 'text-emerald-600' : occupancyRate >= 50 ? 'text-amber-600' : 'text-red-600'}`}>
+                                                        {occupancyRate}%
+                                                    </span>
+                                                    <div className="w-16 h-1 bg-slate-100 rounded-full overflow-hidden">
+                                                        <div
+                                                            className={`h-full ${occupancyRate >= 80 ? 'bg-emerald-500' : occupancyRate >= 50 ? 'bg-amber-500' : 'bg-red-500'}`}
+                                                            style={{ width: `${occupancyRate}%` }}
+                                                        ></div>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </td>
-                                        <td className="px-8 py-5">
-                                            <div className="flex flex-col items-center gap-1">
-                                                <span className="text-xs font-black text-emerald-600">92%</span>
-                                                <div className="w-16 h-1 bg-slate-100 rounded-full overflow-hidden">
-                                                    <div className="w-[92%] h-full bg-emerald-500"></div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td className="px-8 py-5 text-right">
-                                            <Link to={`/managers`} className="inline-flex items-center gap-1.5 px-4 py-2 bg-slate-900 text-white rounded-xl text-xs font-black hover:bg-slate-800 transition-all shadow-lg shadow-slate-900/10">
-                                                {t.drill_down}
-                                                <ArrowUpRight className="w-3.5 h-3.5" />
-                                            </Link>
-                                        </td>
-                                    </tr>
-                                ))}
+                                            </td>
+                                            <td className="px-8 py-5 text-right">
+                                                <Link to={`/managers`} className="inline-flex items-center gap-1.5 px-4 py-2 bg-slate-900 text-white rounded-xl text-xs font-black hover:bg-slate-800 transition-all shadow-lg shadow-slate-900/10">
+                                                    {t.drill_down}
+                                                    <ArrowUpRight className="w-3.5 h-3.5" />
+                                                </Link>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
                             </tbody>
                         </table>
                     </div>
                 </div>
 
-                {/* Right Column - System Health */}
-                <div className="space-y-6">
-                    <div className="bg-slate-900 rounded-[2.5rem] p-8 text-white shadow-2xl relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-40 h-40 bg-primary/20 rounded-full blur-[60px] -mr-20 -mt-20"></div>
 
-                        <h3 className="text-xl font-black mb-1 flex items-center gap-2 uppercase tracking-tight">
-                            <Activity className="w-5 h-5 text-emerald-400" />
-                            {t.healthy}
-                        </h3>
-                        <p className="text-slate-400 text-xs font-medium mb-8">{t.all_nodes_stable}</p>
-
-                        <div className="space-y-6">
-                            <div>
-                                <div className="flex justify-between items-end mb-2">
-                                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{t.occupancy_rate}</p>
-                                    <span className="text-sm font-black text-emerald-400">94.2%</span>
-                                </div>
-                                <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
-                                    <div className="h-full bg-emerald-500 w-[94.2%] shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
-                                </div>
-                            </div>
-
-                            <div>
-                                <div className="flex justify-between items-end mb-2">
-                                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{t.system_economy}</p>
-                                    <span className="text-sm font-black text-primary">88.5%</span>
-                                </div>
-                                <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
-                                    <div className="h-full bg-primary w-[88.5%] shadow-[0_0_10px_rgba(var(--primary),0.5)]"></div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="mt-10 pt-8 border-t border-slate-800 grid grid-cols-2 gap-4">
-                            <div>
-                                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">{t.active_tenants}</p>
-                                <p className="text-2xl font-black text-white">{totalTenants}</p>
-                            </div>
-                            <div>
-                                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">{t.units}</p>
-                                <p className="text-2xl font-black text-white">{totalUnits}</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
         </PageLayout>
     );
