@@ -15,6 +15,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -39,6 +40,7 @@ export default function Tenants() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingTenant, setEditingTenant] = useState<Tenant | null>(null);
+  const [selectedTenant, setSelectedTenant] = useState<Tenant | null>(null);
   const [newTenant, setNewTenant] = useState({
     name: "",
     email: "",
@@ -134,6 +136,9 @@ export default function Tenants() {
           <DialogContent className="w-[95vw] md:max-w-lg rounded-[2rem] max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>{t.onboard_new_tenant}</DialogTitle>
+              <DialogDescription>
+                Enter the details of the new tenant below.
+              </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 pt-4">
               <div>
@@ -336,7 +341,7 @@ export default function Tenants() {
                   }} className="font-medium">
                     {t.edit}
                   </DropdownMenuItem>
-                  <DropdownMenuItem aria-label={t.view_profile}>{t.view_profile}</DropdownMenuItem>
+                  <DropdownMenuItem aria-label={t.view_profile} onClick={() => setSelectedTenant(tenant)}>{t.view_profile}</DropdownMenuItem>
                   <DropdownMenuItem aria-label={t.rent_ledger_item}>{t.rent_ledger_item}</DropdownMenuItem>
                   {tenant.status === 'active' && tenant.unitId && (
                     <DropdownMenuItem
@@ -370,6 +375,9 @@ export default function Tenants() {
         <DialogContent className="w-[95vw] md:max-w-lg rounded-[2rem] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{t.edit_tenant}</DialogTitle>
+            <DialogDescription>
+              Update the tenant's information below.
+            </DialogDescription>
           </DialogHeader>
           {editingTenant && (
             <div className="space-y-4 pt-4">
@@ -500,6 +508,48 @@ export default function Tenants() {
           )}
         </DialogContent>
       </Dialog >
+
+      {/* Tenant Details Dialog */}
+      <Dialog open={!!selectedTenant} onOpenChange={(open) => !open && setSelectedTenant(null)}>
+        <DialogContent className="max-w-md rounded-[2.5rem]">
+          {selectedTenant && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="text-xl font-black">{t.tenant_details || "Tenant Details"}</DialogTitle>
+                <DialogDescription>{t.personal_info || "Tenant Information"}</DialogDescription>
+              </DialogHeader>
+              <div className="space-y-6 pt-4">
+                <div className="flex items-center gap-4">
+                  <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-xl font-black text-primary border-4 border-white shadow-lg">
+                    {selectedTenant.name.charAt(0)}
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-lg">{selectedTenant.name}</h3>
+                    <a href={`mailto:${selectedTenant.email}`} className="text-sm text-muted-foreground hover:text-primary transition-colors block">{selectedTenant.email}</a>
+                    <a href={`tid:${selectedTenant.phone}`} className="text-sm text-muted-foreground hover:text-primary transition-colors block">{selectedTenant.phone}</a>
+                  </div>
+                </div>
+
+                <div className="grid gap-3">
+                  <div className="p-3 rounded-xl bg-muted/30 border flex justify-between items-center">
+                    <span className="text-sm font-medium text-muted-foreground">{t.onboarding_status}</span>
+                    <span className="text-xs font-bold uppercase bg-white border px-2 py-1 rounded-md shadow-sm">{selectedTenant.status}</span>
+                  </div>
+                  <div className="p-3 rounded-xl bg-muted/30 border flex justify-between items-center">
+                    <span className="text-sm font-medium text-muted-foreground">{t.rent_due_day}</span>
+                    <span className="text-sm font-bold">{selectedTenant.rentDueDay}</span>
+                  </div>
+                  <div className="p-3 rounded-xl bg-muted/30 border flex justify-between items-center">
+                    <span className="text-sm font-medium text-muted-foreground">{t.lease_start}</span>
+                    <span className="text-sm font-bold">{selectedTenant.entryDate}</span>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+
     </PageLayout >
   );
 }

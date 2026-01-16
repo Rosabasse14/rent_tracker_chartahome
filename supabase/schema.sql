@@ -64,6 +64,7 @@ create table if not exists public.tenants (
   email text not null,
   name text not null,
   phone text,
+  national_id text,
   lease_start date,
   lease_end date,
   is_active boolean default true,

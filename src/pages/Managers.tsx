@@ -4,7 +4,7 @@ import { PageLayout } from "@/components/layout/PageLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { Users, Phone, Mail, Building, Plus, MoreHorizontal, CheckCircle2, XCircle, MapPin, ArrowRight, Trash2, Edit } from "lucide-react";
 import { useData } from "@/context/DataContext";
 import { useAuth } from "@/context/AuthContext";
@@ -86,6 +86,9 @@ export default function Managers() {
                     <DialogContent className="rounded-[2.5rem]">
                         <DialogHeader>
                             <DialogTitle className="text-2xl font-black tracking-tight">{t.onboard_manager}</DialogTitle>
+                            <DialogDescription>
+                                Enter the manager's details below to create an account.
+                            </DialogDescription>
                         </DialogHeader>
                         <div className="space-y-4 pt-4">
                             <div className="space-y-2">
@@ -228,6 +231,9 @@ export default function Managers() {
                 <DialogContent className="rounded-[2.5rem]">
                     <DialogHeader>
                         <DialogTitle className="text-2xl font-black tracking-tight">{t.edit_manager}</DialogTitle>
+                        <DialogDescription>
+                            Update the manager's account details.
+                        </DialogDescription>
                     </DialogHeader>
                     {editingManager && (
                         <div className="space-y-4 pt-4">
@@ -277,6 +283,9 @@ export default function Managers() {
                 <DialogContent className="max-w-2xl rounded-[3rem] p-8 w-[95vw] md:w-full max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
                         <DialogTitle className="text-3xl font-black tracking-tighter">{t.manager_dossier}</DialogTitle>
+                        <DialogDescription>
+                            Detailed view of the manager's profile and performance.
+                        </DialogDescription>
                     </DialogHeader>
                     {selectedManager && (
                         <div className="grid gap-8 py-4">

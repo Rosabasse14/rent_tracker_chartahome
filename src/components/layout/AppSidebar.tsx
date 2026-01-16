@@ -28,12 +28,12 @@ export function AppSidebar() {
       {/* Toggle Button */}
       <button
         onClick={() => setIsCollapsed(!isCollapsed)}
-        className="absolute -right-3 top-10 w-6 h-6 bg-white border border-border rounded-full flex items-center justify-center shadow-sm hover:shadow-md hover:bg-muted transition-all z-30"
+        className="absolute -right-3 top-10 w-6 h-6 bg-primary border-2 border-sidebar-background rounded-full flex items-center justify-center shadow-lg hover:shadow-xl hover:scale-110 transition-all z-30"
       >
         {isCollapsed ? (
-          <ChevronRight className="w-4 h-4 text-muted-foreground" />
+          <ChevronRight className="w-4 h-4 text-primary-foreground" />
         ) : (
-          <ChevronLeft className="w-4 h-4 text-muted-foreground" />
+          <ChevronLeft className="w-4 h-4 text-primary-foreground" />
         )}
       </button>
     </aside>

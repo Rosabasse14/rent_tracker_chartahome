@@ -69,52 +69,56 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     /* ================= FETCH DATA ================= */
     const fetchData = async () => {
         try {
-            /* ---------- PROPERTIES ---------- */
-            const { data: propData, error: propError } = await supabase.from("properties").select("*");
-            if (propError) console.error("Properties Fetch Error:", propError);
-            if (propData) {
-                setProperties(
-                    propData.map((p) => ({
-                        id: p.id,
-                        name: p.name,
-                        address: p.address,
-                        managerId: p.manager_id,
-                        city: p.city,
-                        state: p.state,
-                        zipCode: p.zip_code,
-                        description: p.description,
-                        imageUrl: p.image_url,
-                        amenities: p.amenities,
-                        type: p.type || "Apartment",
-                        units: 0, // frontend-only
-                    }))
-                );
-            }
-
-            /* ---------- UNITS ---------- */
+            /* ---------- UNITS (fetch first to calculate property unit counts) ---------- */
             const { data: unitData, error: unitError } = await supabase
                 .from("units")
                 .select("*, properties(name)");
 
             if (unitError) console.error("Units Fetch Error:", unitError);
-            if (unitData) {
-                setUnits(
-                    unitData.map((u: any) => ({
-                        id: u.id,
-                        name: u.name,
-                        monthlyRent: u.monthly_rent,
-                        status: u.status,
-                        propertyId: u.property_id,
-                        propertyName: u.properties?.name || "Unknown",
-                        type: u.type || "Standard",
-                        bedrooms: u.bedrooms,
-                        bathrooms: u.bathrooms,
-                        sizeSqm: u.size_sqm,
-                        floorNumber: u.floor_number,
-                        depositAmount: u.deposit_amount,
-                        maintenanceFee: u.maintenance_fee,
-                        description: u.description,
-                    }))
+
+            const unitsArray = unitData ? unitData.map((u: any) => ({
+                id: u.id,
+                name: u.name,
+                monthlyRent: u.monthly_rent,
+                status: u.status,
+                propertyId: u.property_id,
+                propertyName: u.properties?.name || "Unknown",
+                type: u.type || "Standard",
+                bedrooms: u.bedrooms,
+                bathrooms: u.bathrooms,
+                sizeSqm: u.size_sqm,
+                floorNumber: u.floor_number,
+                depositAmount: u.deposit_amount,
+                maintenanceFee: u.maintenance_fee,
+                description: u.description,
+            })) : [];
+
+            setUnits(unitsArray);
+
+            /* ---------- PROPERTIES ---------- */
+            const { data: propData, error: propError } = await supabase.from("properties").select("*");
+            if (propError) console.error("Properties Fetch Error:", propError);
+            if (propData) {
+                setProperties(
+                    propData.map((p) => {
+                        // Calculate unit count for this property
+                        const unitCount = unitsArray.filter(u => u.propertyId === p.id).length;
+
+                        return {
+                            id: p.id,
+                            name: p.name,
+                            address: p.address,
+                            managerId: p.manager_id,
+                            city: p.city,
+                            state: p.state,
+                            zipCode: p.zip_code,
+                            description: p.description,
+                            imageUrl: p.image_url,
+                            amenities: p.amenities,
+                            type: p.type || "Apartment",
+                            units: unitCount, // Dynamically calculated!
+                        };
+                    })
                 );
             }
 
@@ -205,10 +209,18 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     /* ================= CRUD ================= */
 
     const addProperty = async (property: Property) => {
+        // TEMPORARY FIX: Always set manager_id to null to avoid foreign key errors
+        // TODO: Properly sync managers with profiles table
+        const sanitizedManagerId = null;
+
+        console.log("=== ADD PROPERTY DEBUG ===");
+        console.log("Original managerId:", property.managerId);
+        console.log("Sanitized managerId:", sanitizedManagerId);
+
         const dbProperty = {
             name: property.name,
             address: property.address,
-            manager_id: (property.managerId === "" || property.managerId === "00000000-0000-0000-0000-000000000000") ? null : property.managerId,
+            manager_id: sanitizedManagerId,
             description: property.description,
             city: property.city,
             state: property.state,
@@ -218,10 +230,18 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
             type: property.type,
         };
 
-        const { error } = await supabase.from("properties").insert([dbProperty]);
-        if (error) toast.error(error.message);
-        else {
-            toast.success("Property added");
+        console.log("Property object being sent to DB:", dbProperty);
+
+        const { data, error } = await supabase.from("properties").insert([dbProperty]).select();
+        if (error) {
+            console.error("Property Insert Error:", error);
+            console.error("Error details:", JSON.stringify(error, null, 2));
+            console.error("Error code:", error.code);
+            console.error("Error hint:", error.hint);
+            toast.error(`Failed to add property: ${error.message}`);
+        } else {
+            console.log("Property added successfully:", data);
+            toast.success("Property added successfully!");
             fetchData();
         }
     };
@@ -273,7 +293,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
                 updateProperty,
                 deleteProperty,
                 addUnit: async (unit) => {
-                    const { error } = await supabase.from("units").insert([{
+                    const { data, error } = await supabase.from("units").insert([{
                         name: unit.name,
                         property_id: unit.propertyId,
                         monthly_rent: unit.monthlyRent,
@@ -286,9 +306,15 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
                         floor_number: unit.floorNumber,
                         deposit_amount: unit.depositAmount,
                         maintenance_fee: unit.maintenanceFee,
-                    }]);
-                    if (error) toast.error(error.message);
-                    else fetchData();
+                    }]).select();
+                    if (error) {
+                        console.error("Unit Insert Error:", error);
+                        toast.error(`Failed to add unit: ${error.message}`);
+                    } else {
+                        console.log("Unit added successfully:", data);
+                        toast.success("Unit added successfully!");
+                        fetchData();
+                    }
                 },
                 updateUnit: async (id, updates) => {
                     const dbUpdates: any = {};
@@ -314,7 +340,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
                     else fetchData();
                 },
                 addTenant: async (tenant) => {
-                    const { error } = await supabase.from("tenants").insert([{
+                    const { data, error } = await supabase.from("tenants").insert([{
                         id: tenant.id,
                         name: tenant.name,
                         email: tenant.email,
@@ -325,11 +351,13 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
                         lease_end: tenant.leaseEnd,
                         rent_due_day: tenant.rentDueDay,
                         is_active: tenant.status === 'active'
-                    }]);
+                    }]).select();
                     if (error) {
-                        toast.error(error.message);
+                        console.error("Tenant Insert Error:", error);
+                        toast.error(`Failed to add tenant: ${error.message}`);
                         return false;
                     }
+                    console.log("Tenant added successfully:", data);
                     fetchData();
                     return true;
                 },

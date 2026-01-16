@@ -14,6 +14,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -117,6 +118,9 @@ export default function PaymentProofs() {
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>{t.submit_payment_btn}</DialogTitle>
+                <DialogDescription>
+                  Upload your payment receipt and enter the details below.
+                </DialogDescription>
               </DialogHeader>
               <div className="space-y-4 pt-4">
                 <div className="grid grid-cols-2 gap-4">
@@ -290,6 +294,9 @@ export default function PaymentProofs() {
                   <DialogContent className="max-w-3xl rounded-[2.5rem] p-4">
                     <DialogHeader>
                       <DialogTitle>{t.mmoney_proof}</DialogTitle>
+                      <DialogDescription>
+                        Full proof of payment document.
+                      </DialogDescription>
                     </DialogHeader>
                     <div className="mt-4 rounded-2xl overflow-hidden border">
                       <img src={proof.fileUrl} alt="Full Proof" className="w-full h-auto max-h-[70vh] object-contain mx-auto" />

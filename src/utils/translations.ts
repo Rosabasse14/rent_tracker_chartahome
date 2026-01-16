@@ -25,6 +25,8 @@ export const translations = {
         onboard_manager: "Onboard Manager",
         system_governance: "System Governance",
         real_time_oversight: "Real-time oversight across all nodes",
+        revenue_trends: "Revenue Trends",
+        expiring_leases: "Expiring Leases",
 
         // Sidebar & Navigation
         properties: "Properties",
@@ -312,6 +314,12 @@ export const translations = {
         edit_tenant: "Edit Tenant",
         confirm_delete_manager: "Are you sure you want to delete this manager?",
         confirm_delete_tenant: "Are you sure you want to delete this tenant?",
+        no_units: "No units listed",
+        occupied_by: "Occupied By",
+        tenant_details: "Tenant Details",
+        personal_info: "Personal Information",
+        onboarding_status: "Onboarding Status",
+        lease_start: "Lease Start",
     },
     fr: {
         // Roles
@@ -339,6 +347,8 @@ export const translations = {
         onboard_manager: "Intégrer un Gestionnaire",
         system_governance: "Gouvernance du Système",
         real_time_oversight: "Surveillance en temps réel sur tous les nœuds",
+        revenue_trends: "Tendances des Revenus",
+        expiring_leases: "Baux Expirants",
 
         // Sidebar & Navigation
         properties: "Propriétés",
@@ -626,6 +636,12 @@ export const translations = {
         edit_tenant: "Modifier le Locataire",
         confirm_delete_manager: "Voulez-vous vraiment supprimer ce gestionnaire ?",
         confirm_delete_tenant: "Voulez-vous vraiment supprimer ce locataire ?",
+        no_units: "Aucune unité répertoriée",
+        occupied_by: "Occupé par",
+        tenant_details: "Détails du Locataire",
+        personal_info: "Informations Personnelles",
+        onboarding_status: "Statut d'intégration",
+        lease_start: "Début du bail",
     }
 };
 

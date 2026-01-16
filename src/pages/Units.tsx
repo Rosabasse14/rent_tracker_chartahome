@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { Button } from "@/components/ui/button";
-import { Unit } from "@/types";
+import { Unit, Tenant } from "@/types";
 import { Plus, Home, Building2, DollarSign, User, Trash2 } from "lucide-react";
 import { useData } from "@/context/DataContext";
 import { useAuth } from "@/context/AuthContext";
@@ -13,6 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,8 +28,10 @@ import {
 export default function Units() {
   const { language } = useAuth();
   const t = translations[language];
-  const { units, properties, addUnit, deleteUnit } = useData();
+  const { units, properties, tenants, addUnit, deleteUnit } = useData();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedUnit, setSelectedUnit] = useState<Unit | null>(null);
+  const [selectedTenant, setSelectedTenant] = useState<Tenant | null>(null);
   const [newUnit, setNewUnit] = useState({
     name: "",
     propertyId: "",
@@ -97,6 +100,9 @@ export default function Units() {
           <DialogContent>
             <DialogHeader>
               <DialogTitle>{t.new_unit}</DialogTitle>
+              <DialogDescription>
+                Fill in the details below to create a new unit.
+              </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 pt-4">
               <div>
@@ -238,13 +244,20 @@ export default function Units() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {units.map((unit) => (
-          <div key={unit.id} className="property-card">
+          <div
+            key={unit.id}
+            className="property-card cursor-pointer hover:shadow-lg transition-all"
+            onClick={() => setSelectedUnit(unit)}
+          >
             <div className="flex items-start justify-between mb-3">
               <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
                 <Home className="w-5 h-5 text-primary" />
               </div>
               <button
-                onClick={() => deleteUnit(unit.id)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  deleteUnit(unit.id);
+                }}
                 className="text-muted-foreground hover:text-destructive transition-colors"
                 aria-label={t.delete}
               >
@@ -279,6 +292,107 @@ export default function Units() {
           </div>
         ))}
       </div>
+
+      {/* Unit Details Dialog */}
+      <Dialog open={!!selectedUnit} onOpenChange={(open) => !open && setSelectedUnit(null)}>
+        <DialogContent className="max-w-md rounded-[2.5rem]">
+          {selectedUnit && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="text-xl font-black">{selectedUnit.name}</DialogTitle>
+                <DialogDescription>{selectedUnit.propertyName}</DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 pt-4">
+                <div className="grid grid-cols-2 gap-4 rounded-xl bg-muted/30 p-4 border">
+                  <div>
+                    <p className="text-[10px] uppercase font-bold text-muted-foreground">{t.monthly_rent_label}</p>
+                    <p className="text-lg font-bold text-primary">{selectedUnit.monthlyRent ? selectedUnit.monthlyRent.toLocaleString() : 0} <span className="text-xs">FCFA</span></p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] uppercase font-bold text-muted-foreground">{t.unit_type}</p>
+                    <p className="font-medium">{selectedUnit.type}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] uppercase font-bold text-muted-foreground">{t.unit_bedrooms}</p>
+                    <p className="font-medium">{selectedUnit.bedrooms || '-'}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] uppercase font-bold text-muted-foreground">{t.unit_bathrooms}</p>
+                    <p className="font-medium">{selectedUnit.bathrooms || '-'}</p>
+                  </div>
+                </div>
+
+                {selectedUnit.status === 'occupied' ? (
+                  <div
+                    onClick={() => {
+                      const tenant = tenants.find(t => t.unitId === selectedUnit.id);
+                      if (tenant) setSelectedTenant(tenant);
+                    }}
+                    className="bg-emerald-50 border border-emerald-100 p-4 rounded-2xl cursor-pointer hover:bg-emerald-100 transition-colors group"
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <p className="text-emerald-600 text-xs font-black uppercase tracking-wider flex items-center gap-1">
+                        {t.occupied_by}
+                      </p>
+                      <span className="w-6 h-6 rounded-full bg-emerald-200/50 flex items-center justify-center">
+                        <User className="w-3 h-3 text-emerald-700" />
+                      </span>
+                    </div>
+                    <p className="text-lg font-bold text-emerald-900">{selectedUnit.tenantName}</p>
+                    <p className="text-xs text-emerald-600/80">Click to view tenant details</p>
+                  </div>
+                ) : (
+                  <div className="bg-slate-50 border border-slate-100 p-4 rounded-2xl text-center">
+                    <p className="text-slate-500 font-medium">{t.vacant}</p>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Tenant Details Dialog */}
+      <Dialog open={!!selectedTenant} onOpenChange={(open) => !open && setSelectedTenant(null)}>
+        <DialogContent className="max-w-md rounded-[2.5rem]">
+          {selectedTenant && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="text-xl font-black">{t.tenant_details || "Tenant Details"}</DialogTitle>
+                <DialogDescription>{t.personal_info || "Tenant Information"}</DialogDescription>
+              </DialogHeader>
+              <div className="space-y-6 pt-4">
+                <div className="flex items-center gap-4">
+                  <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-xl font-black text-primary border-4 border-white shadow-lg">
+                    {selectedTenant.name.charAt(0)}
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-lg">{selectedTenant.name}</h3>
+                    <a href={`mailto:${selectedTenant.email}`} className="text-sm text-muted-foreground hover:text-primary transition-colors block">{selectedTenant.email}</a>
+                    <a href={`tid:${selectedTenant.phone}`} className="text-sm text-muted-foreground hover:text-primary transition-colors block">{selectedTenant.phone}</a>
+                  </div>
+                </div>
+
+                <div className="grid gap-3">
+                  <div className="p-3 rounded-xl bg-muted/30 border flex justify-between items-center">
+                    <span className="text-sm font-medium text-muted-foreground">{t.onboarding_status}</span>
+                    <span className="text-xs font-bold uppercase bg-white border px-2 py-1 rounded-md shadow-sm">{selectedTenant.status}</span>
+                  </div>
+                  <div className="p-3 rounded-xl bg-muted/30 border flex justify-between items-center">
+                    <span className="text-sm font-medium text-muted-foreground">{t.rent_due_day}</span>
+                    <span className="text-sm font-bold">{selectedTenant.rentDueDay}</span>
+                  </div>
+                  <div className="p-3 rounded-xl bg-muted/30 border flex justify-between items-center">
+                    <span className="text-sm font-medium text-muted-foreground">{t.lease_start}</span>
+                    <span className="text-sm font-bold">{selectedTenant.entryDate}</span>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+
     </PageLayout>
   );
 }

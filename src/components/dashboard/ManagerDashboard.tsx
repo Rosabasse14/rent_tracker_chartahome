@@ -1,29 +1,23 @@
 
 import { PageLayout } from "@/components/layout/PageLayout";
-import { StatCard } from "@/components/dashboard/StatCard";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { useData } from "@/context/DataContext";
 import {
-    DollarSign,
-    CheckCircle2,
-    AlertCircle,
-    TrendingUp,
-    ExternalLink,
+    Clock,
+    User,
     Users,
     Building2,
     Home,
-    Calendar,
     ArrowUpRight,
-    ArrowDownRight,
-    Clock
+    ExternalLink
 } from "lucide-react";
 import { Link } from "react-router-dom";
-
 import { useAuth } from "@/context/AuthContext";
 import { translations } from "@/utils/translations";
+import { InsightsCharts } from "@/components/dashboard/InsightsCharts";
 
 export function ManagerDashboard() {
-    const { tenants, paymentProofs, units, properties, overduePayments } = useData();
+    const { paymentProofs, units, properties, overduePayments } = useData();
     const { language } = useAuth();
     const t = translations[language];
 
@@ -42,11 +36,8 @@ export function ManagerDashboard() {
         .filter(p => p.status === 'paid' && p.period === periodString)
         .reduce((sum, p) => sum + p.amount, 0);
 
-    const pendingProofs = paymentProofs.filter(p => p.status === 'pending');
-
     // Outstanding - simple mock for UI
     const totalExpected = units.reduce((sum, u) => sum + u.monthlyRent, 0);
-    const outstandingRent = Math.max(0, totalExpected - totalCollected);
 
     return (
         <PageLayout>
@@ -115,15 +106,23 @@ export function ManagerDashboard() {
                         <h3 className="text-3xl font-black leading-none">{totalCollected.toLocaleString()} <span className="text-sm font-normal text-white/80 ml-1">FCFA</span></h3>
                         <div className="mt-4 pt-4 border-t border-white/10 flex justify-between items-center text-[10px] font-medium text-white/60">
                             <span>{t.expected_rent}: {(totalExpected * 0.9).toLocaleString()} FCFA</span>
-                            <span className="text-white/90">{t.view} {t.insights} →</span>
+                            <span className="text-white/90 cursor-pointer hover:underline">{t.view} {t.insights} →</span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Recent Activity Section */}
-                <div className="lg:col-span-2 space-y-6">
+            {/* Insights Section */}
+            <div className="mb-12">
+                <div className="flex items-center justify-between px-2 mb-6">
+                    <h2 className="text-2xl font-black tracking-tight">{t.insights}</h2>
+                </div>
+                <InsightsCharts />
+            </div>
+
+            {/* Recent Activity Section (Full Width Now) */}
+            <div className="space-y-8">
+                <div className="space-y-6">
                     <div className="flex items-center justify-between px-2">
                         <h2 className="text-2xl font-black tracking-tight">{t.recent_payments}</h2>
                         <Link to="/payment-proofs" className="text-sm font-bold text-primary hover:bg-primary/5 px-4 py-2 rounded-xl transition-all">{t.review_all}</Link>
@@ -192,7 +191,7 @@ export function ManagerDashboard() {
 
                     <div className="bg-card rounded-[2.5rem] border border-red-100 shadow-sm overflow-hidden p-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {overduePayments.slice(0, 4).map((overdue) => (
+                            {overduePayments.slice(0, 6).map((overdue) => (
                                 <div key={overdue.id} className="flex items-center justify-between p-4 rounded-2xl bg-red-50/50 border border-red-100">
                                     <div className="flex items-center gap-3">
                                         <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-600 font-bold">
@@ -206,64 +205,11 @@ export function ManagerDashboard() {
                                     <p className="font-black text-red-600 text-sm whitespace-nowrap">{overdue.amount.toLocaleString()} FCFA</p>
                                 </div>
                             ))}
-                        </div>
-                    </div>
-                </div>
-
-                {/* KPI Sidebar */}
-                <div className="space-y-6">
-                    <div className="flex items-center justify-between px-2">
-                        <h2 className="text-2xl font-black tracking-tight">{t.insights}</h2>
-                    </div>
-
-                    <div className="bg-card rounded-[2.5rem] border shadow-sm p-8 bg-gradient-to-b from-card to-muted/10 relative overflow-hidden group">
-                        {/* Progress Ring or Graphic */}
-                        <div className="mb-10 text-center relative">
-                            <div className="w-40 h-40 rounded-full border-[12px] border-muted/50 mx-auto flex items-center justify-center">
-                                <div>
-                                    <p className="text-4xl font-black tracking-tighter">85%</p>
-                                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-1">{t.efficiency}</p>
+                            {overduePayments.length === 0 && (
+                                <div className="md:col-span-2 text-center text-muted-foreground py-4 text-sm bg-white/50 rounded-xl">
+                                    No overdue payments
                                 </div>
-                            </div>
-                            {/* Decorative element */}
-                            <div className="absolute top-0 right-10 w-4 h-4 bg-emerald-500 rounded-full blur-sm animate-pulse"></div>
-                        </div>
-
-                        <div className="space-y-4">
-                            <div className="p-5 rounded-[1.5rem] bg-indigo-50/50 border border-indigo-100 flex items-start gap-4 hover:bg-indigo-50 transition-colors">
-                                <div className="p-2.5 rounded-xl bg-indigo-100/50 text-indigo-700">
-                                    <AlertCircle className="w-4 h-4" />
-                                </div>
-                                <div>
-                                    <h4 className="text-xs font-black text-indigo-900 uppercase tracking-widest leading-none mb-1">{t.unpaid_alert}</h4>
-                                    <p className="text-[11px] text-indigo-700 font-medium">3 {t.unpaid_tenants_msg} {currentMonth}.</p>
-                                    <Link to="/rent-ledger" className="inline-block mt-2 text-[10px] font-black text-indigo-600 hover:underline">{t.run_ledger} →</Link>
-                                </div>
-                            </div>
-
-                            <div className="p-5 rounded-[1.5rem] bg-emerald-50/50 border border-emerald-100 flex items-start gap-4 hover:bg-emerald-50 transition-colors">
-                                <div className="p-2.5 rounded-xl bg-emerald-100/50 text-emerald-700">
-                                    <TrendingUp className="w-4 h-4" />
-                                </div>
-                                <div>
-                                    <h4 className="text-xs font-black text-emerald-900 uppercase tracking-widest leading-none mb-1">{t.growth_high}</h4>
-                                    <p className="text-[11px] text-emerald-700 font-medium">{t.occupancy_increased}</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="mt-8 pt-8 border-t border-border/50">
-                            <h4 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-4 opacity-60">{t.super_actions}</h4>
-                            <div className="grid grid-cols-2 gap-3">
-                                <Link to="/properties" className="flex flex-col items-center justify-center p-4 rounded-2xl border border-border/50 bg-background hover:bg-primary/5 hover:border-primary/20 transition-all group/action">
-                                    <Building2 className="w-5 h-5 mb-2 text-primary group-hover/action:scale-110 transition-transform" />
-                                    <span className="text-[10px] font-bold uppercase tracking-widest">{t.properties}</span>
-                                </Link>
-                                <Link to="/tenants" className="flex flex-col items-center justify-center p-4 rounded-2xl border border-border/50 bg-background hover:bg-emerald-50 hover:border-emerald-200 transition-all group/action">
-                                    <Users className="w-5 h-5 mb-2 text-emerald-600 group-hover/action:scale-110 transition-transform" />
-                                    <span className="text-[10px] font-bold uppercase tracking-widest">{t.onboard}</span>
-                                </Link>
-                            </div>
+                            )}
                         </div>
                     </div>
                 </div>

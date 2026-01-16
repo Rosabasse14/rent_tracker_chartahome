@@ -62,6 +62,9 @@ BEGIN
   IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='tenants' AND column_name='phone') THEN
     ALTER TABLE public.tenants ADD COLUMN phone text;
   END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='tenants' AND column_name='national_id') THEN
+    ALTER TABLE public.tenants ADD COLUMN national_id text;
+  END IF;
   IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='tenants' AND column_name='rent_due_day') THEN
     ALTER TABLE public.tenants ADD COLUMN rent_due_day integer DEFAULT 5;
   END IF;
